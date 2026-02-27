@@ -3,7 +3,7 @@ import { FeedItem } from '../types/api';
 
 export const repositoryApi = {
   submitRepo: (data: { githubRepoId: string; pitch?: string }) => 
-    post<{ repositoryId: string }>('/repo/submit', data),
+    post<{ repositoryId: string }>('/repository', data),
     
   syncRepo: (id: string) => 
     post<{ stars: number; syncedAt: string }>(`/repository/${id}/sync`),
@@ -13,7 +13,6 @@ export const repositoryApi = {
     if (cursor) params.append('cursor', cursor);
     if (limit) params.append('limit', limit.toString());
     
-    // Explicitly aligned with GET /api/repo/feed defined in Frontend-Backend-Contract.md
-    return get<{ feed: FeedItem[]; nextCursor: string | null }>(`/repo/feed?${params.toString()}`);
+    return get<FeedItem[]>(`/repository/feed?${params.toString()}`);
   }
 };
