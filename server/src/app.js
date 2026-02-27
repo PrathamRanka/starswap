@@ -14,12 +14,14 @@ import swipeRoutes from './features/swipe/swipe.routes.js'
 import leaderboardRoutes from './features/leaderboard/leaderboard.routes.js'
 import repoRoutes from './features/repo/repo.routes.js'
 import userRoutes from './features/user/user.routes.js'
+import adminRoutes from './features/admin/admin.routes.js'
 
 app.use('/auth', authRoutes)
 app.use('/swipe', swipeRoutes)
 app.use('/leaderboard', leaderboardRoutes)
 app.use('/repository', repoRoutes)
 app.use('/user', userRoutes)
+app.use('/admin', adminRoutes)
 app.use(errorMiddleware);
 
 export default app;
