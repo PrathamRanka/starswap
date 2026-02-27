@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useState,useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
+import { Ephesis, Roboto_Slab } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 
 import * as THREE from "three";
+
+const ephesis = Ephesis({ weight: "400", subsets: ["latin"] });
+const robotoSlab = Roboto_Slab({ subsets: ["latin"] });
 
 type Uniforms = {
   [key: string]: {
@@ -243,33 +246,29 @@ const DotMatrix: React.FC<DotMatrixProps> = ({
 const ShaderMaterial = ({
   source,
   uniforms,
-  maxFps = 60,
 }: {
   source: string;
   hovered?: boolean;
-  maxFps?: number;
   uniforms: Uniforms;
 }) => {
   const { size } = useThree();
   const ref = useRef<THREE.Mesh>(null);
-  let lastFrameTime = 0;
 
   useFrame(({ clock }) => {
     if (!ref.current) return;
     const timestamp = clock.getElapsedTime();
 
-    lastFrameTime = timestamp;
-
-    const material: any = ref.current.material;
-    const timeLocation = material.uniforms.u_time;
-    timeLocation.value = timestamp;
+    const material = ref.current.material as THREE.ShaderMaterial;
+    if (material.uniforms && material.uniforms.u_time) {
+      material.uniforms.u_time.value = timestamp;
+    }
   });
 
-  const getUniforms = () => {
-    const preparedUniforms: any = {};
+  const getUniforms = React.useCallback(() => {
+    const preparedUniforms: Record<string, any> = {};
 
     for (const uniformName in uniforms) {
-      const uniform: any = uniforms[uniformName];
+      const uniform = uniforms[uniformName];
 
       switch (uniform.type) {
         case "uniform1f":
@@ -280,7 +279,7 @@ const ShaderMaterial = ({
           break;
         case "uniform3f":
           preparedUniforms[uniformName] = {
-            value: new THREE.Vector3().fromArray(uniform.value),
+            value: new THREE.Vector3().fromArray(uniform.value as number[]),
             type: "3f",
           };
           break;
@@ -289,7 +288,7 @@ const ShaderMaterial = ({
           break;
         case "uniform3fv":
           preparedUniforms[uniformName] = {
-            value: uniform.value.map((v: number[]) =>
+            value: (uniform.value as number[][]).map((v: number[]) =>
               new THREE.Vector3().fromArray(v)
             ),
             type: "3fv",
@@ -297,7 +296,7 @@ const ShaderMaterial = ({
           break;
         case "uniform2f":
           preparedUniforms[uniformName] = {
-            value: new THREE.Vector2().fromArray(uniform.value),
+            value: new THREE.Vector2().fromArray(uniform.value as number[]),
             type: "2f",
           };
           break;
@@ -312,7 +311,7 @@ const ShaderMaterial = ({
       value: new THREE.Vector2(size.width * 2, size.height * 2),
     }; // Initialize u_resolution
     return preparedUniforms;
-  };
+  }, [uniforms, size.width, size.height]);
 
   // Shader material
   const material = useMemo(() => {
@@ -339,20 +338,20 @@ const ShaderMaterial = ({
     });
 
     return materialObject;
-  }, [size.width, size.height, source]);
+  }, [source, getUniforms]);
 
   return (
-    <mesh ref={ref as any}>
+    <mesh ref={ref}>
       <planeGeometry args={[2, 2]} />
       <primitive object={material} attach="material" />
     </mesh>
   );
 };
 
-const Shader: React.FC<ShaderProps> = ({ source, uniforms, maxFps = 60 }) => {
+const Shader: React.FC<ShaderProps> = ({ source, uniforms }) => {
   return (
     <Canvas className="absolute inset-0  h-full w-full">
-      <ShaderMaterial source={source} uniforms={uniforms} maxFps={maxFps} />
+      <ShaderMaterial source={source} uniforms={uniforms} />
     </Canvas>
   );
 };
@@ -387,7 +386,10 @@ function MiniNavbar() {
     }
 
     if (isOpen) {
-      setHeaderShapeClass('rounded-xl');
+      // Use setTimeout to avoid synchronous state updates during render phase warnings
+      shapeTimeoutRef.current = setTimeout(() => {
+        setHeaderShapeClass('rounded-xl');
+      }, 0);
     } else {
       shapeTimeoutRef.current = setTimeout(() => {
         setHeaderShapeClass('rounded-full');
@@ -411,30 +413,18 @@ function MiniNavbar() {
   );
 
   const navLinksData = [
-    { label: 'Manifesto', href: '#1' },
-    { label: 'Careers', href: '#2' },
-    { label: 'Discover', href: '#3' },
+    { label: 'Repos', href: '#1' },
+    { label: 'Leaderboard', href: '#2' },
+    // { label: 'Discover', href: '#3' },
   ];
 
   const loginButtonElement = (
-    <button className="px-4 py-2 sm:px-3 text-xs sm:text-sm border border-[#333] bg-[rgba(31,31,31,0.62)] text-gray-300 rounded-full hover:border-white/50 hover:text-white transition-colors duration-200 w-full sm:w-auto">
-      LogIn
-    </button>
+    <a href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/auth/github`} className="px-4 py-2 sm:px-3 text-xs sm:text-sm font-semibold text-black bg-gradient-to-br from-gray-100 to-gray-300 rounded-full hover:from-gray-200 hover:to-gray-400 transition-all duration-200 w-full sm:w-auto text-center inline-block">
+      Login with GitHub
+    </a>
   );
 
-  const signupButtonElement = (
-    <div className="relative group w-full sm:w-auto">
-       <div className="absolute inset-0 -m-2 rounded-full
-                     hidden sm:block
-                     bg-gray-100
-                     opacity-40 filter blur-lg pointer-events-none
-                     transition-all duration-300 ease-out
-                     group-hover:opacity-60 group-hover:blur-xl group-hover:-m-3"></div>
-       <button className="relative z-10 px-4 py-2 sm:px-3 text-xs sm:text-sm font-semibold text-black bg-gradient-to-br from-gray-100 to-gray-300 rounded-full hover:from-gray-200 hover:to-gray-400 transition-all duration-200 w-full sm:w-auto">
-         Signup
-       </button>
-    </div>
-  );
+  const signupButtonElement = null; // Removed manual signup completely
 
   return (
     <header className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-20
@@ -491,113 +481,28 @@ function MiniNavbar() {
 }
 
 export const SignInPage = ({ className }: SignInPageProps) => {
-  const [email, setEmail] = useState("");
-  const [step, setStep] = useState<"email" | "code" | "success">("email");
-  const [code, setCode] = useState(["", "", "", "", "", ""]);
-  const codeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
-  const [initialCanvasVisible, setInitialCanvasVisible] = useState(true);
-  const [reverseCanvasVisible, setReverseCanvasVisible] = useState(false);
-
-  const handleEmailSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) {
-      setStep("code");
-    }
-  };
-
-  // Focus first input when code screen appears
-  useEffect(() => {
-    if (step === "code") {
-      setTimeout(() => {
-        codeInputRefs.current[0]?.focus();
-      }, 500);
-    }
-  }, [step]);
-
-  const handleCodeChange = (index: number, value: string) => {
-    if (value.length <= 1) {
-      const newCode = [...code];
-      newCode[index] = value;
-      setCode(newCode);
-      
-      // Focus next input if value is entered
-      if (value && index < 5) {
-        codeInputRefs.current[index + 1]?.focus();
-      }
-      
-      // Check if code is complete
-      if (index === 5 && value) {
-        const isComplete = newCode.every(digit => digit.length === 1);
-        if (isComplete) {
-          // First show the new reverse canvas
-          setReverseCanvasVisible(true);
-          
-          // Then hide the original canvas after a small delay
-          setTimeout(() => {
-            setInitialCanvasVisible(false);
-          }, 50);
-          
-          // Transition to success screen after animation
-          setTimeout(() => {
-            setStep("success");
-          }, 2000);
-        }
-      }
-    }
-  };
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !code[index] && index > 0) {
-      codeInputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleBackClick = () => {
-    setStep("email");
-    setCode(["", "", "", "", "", ""]);
-    // Reset animations if going back
-    setReverseCanvasVisible(false);
-    setInitialCanvasVisible(true);
+  const handleGithubSignIn = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/auth/github`;
   };
 
   return (
     <div className={cn("flex w-[100%] flex-col min-h-screen bg-black relative", className)}>
       <div className="absolute inset-0 z-0">
-        {/* Initial canvas (forward animation) */}
-        {initialCanvasVisible && (
-          <div className="absolute inset-0">
-            <CanvasRevealEffect
-              animationSpeed={3}
-              containerClassName="bg-black"
-              colors={[
-                [255, 255, 255],
-                [255, 255, 255],
-              ]}
-              dotSize={6}
-              reverse={false}
-            />
-          </div>
-        )}
+        <div className="absolute inset-0">
+          <CanvasRevealEffect
+            animationSpeed={3}
+            containerClassName="bg-black"
+            colors={[
+              [255, 255, 255],
+              [255, 255, 255],
+            ]}
+            dotSize={6}
+            reverse={false}
+          />
+        </div>
         
-        {/* Reverse canvas (appears when code is complete) */}
-        {reverseCanvasVisible && (
-          <div className="absolute inset-0">
-            <CanvasRevealEffect
-              animationSpeed={4}
-              containerClassName="bg-black"
-              colors={[
-                [255, 255, 255],
-                [255, 255, 255],
-              ]}
-              dotSize={6}
-              reverse={true}
-            />
-          </div>
-        )}
-        
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(0,0,0,1)_0%,_transparent_100%)]" />
-        <div className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-black to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,1)_0%,transparent_100%)]" />
+        <div className="absolute top-0 left-0 right-0 h-1/3 bg-linear-to-b from-black to-transparent" />
       </div>
       
       {/* Content Layer */}
@@ -611,7 +516,6 @@ export const SignInPage = ({ className }: SignInPageProps) => {
           <div className="flex-1 flex flex-col justify-center items-center">
             <div className="w-full mt-[150px] max-w-sm">
               <AnimatePresence mode="wait">
-                {step === "email" ? (
                   <motion.div 
                     key="email-step"
                     initial={{ opacity: 0, x: -100 }}
@@ -621,175 +525,23 @@ export const SignInPage = ({ className }: SignInPageProps) => {
                     className="space-y-6 text-center"
                   >
                     <div className="space-y-1">
-                      <h1 className="text-[2.5rem] font-bold leading-[1.1] tracking-tight text-white">Welcome Developer</h1>
-                      <p className="text-[1.8rem] text-white/70 font-light">Your sign in component</p>
+                      <h1 className="text-[2.5rem] font-bold leading-[1.1] tracking-tight text-white mb-6 flex flex-wrap justify-center items-center">
+                        <span>Discover</span>
+                        <span className={cn(ephesis.className, "text-[4rem] font-medium leading-[0.8] ml-2 text-transparent bg-clip-text bg-linear-to-r from-white to-white/60 whitespace-nowrap pt-2")}>Top Repos</span>
+                      </h1>
+                      <p className={cn(robotoSlab.className, "text-[1.1rem] text-white/70 font-light max-w-sm mx-auto tracking-wide leading-relaxed")}>Swipe to discover, rank, and pitch the most elite open source repositories in the ecosystem.</p>
                     </div>
                     
                     
-                    <div className="space-y-4">
-                      <button className="backdrop-blur-[2px] w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-full py-3 px-4 transition-colors">
-                        <span className="text-lg">G</span>
-                        <span>Sign in with Github</span>
-                      </button>
-                      
-                      <div className="flex items-center gap-4">
-                        <div className="h-px bg-white/10 flex-1" />
-                        <span className="text-white/40 text-sm">or</span>
-                        <div className="h-px bg-white/10 flex-1" />
-                      </div>
-                      
-                      <form onSubmit={handleEmailSubmit}>
-                        <div className="relative">
-                          <input 
-                            type="email" 
-                            placeholder="info@gmail.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full backdrop-blur-[1px] text-white border-1 border-white/10 rounded-full py-3 px-4 focus:outline-none focus:border focus:border-white/30 text-center"
-                            required
-                          />
-                          <button 
-                            type="submit"
-                            className="absolute right-1.5 top-1.5 text-white w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors group overflow-hidden"
-                          >
-                            <span className="relative w-full h-full block overflow-hidden">
-                              <span className="absolute inset-0 flex items-center justify-center transition-transform duration-300 group-hover:translate-x-full">
-                                →
-                              </span>
-                              <span className="absolute inset-0 flex items-center justify-center transition-transform duration-300 -translate-x-full group-hover:translate-x-0">
-                                →
-                              </span>
-                            </span>
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-                    
-                    <p className="text-xs text-white/40 pt-10">
-                      By signing up, you agree to the <Link href="#" className="underline text-white/40 hover:text-white/60 transition-colors">MSA</Link>, <Link href="#" className="underline text-white/40 hover:text-white/60 transition-colors">Product Terms</Link>, <Link href="#" className="underline text-white/40 hover:text-white/60 transition-colors">Policies</Link>, <Link href="#" className="underline text-white/40 hover:text-white/60 transition-colors">Privacy Notice</Link>, and <Link href="#" className="underline text-white/40 hover:text-white/60 transition-colors">Cookie Notice</Link>.
-                    </p>
-                  </motion.div>
-                ) : step === "code" ? (
-                  <motion.div 
-                    key="code-step"
-                    initial={{ opacity: 0, x: 100 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 100 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="space-y-6 text-center"
-                  >
-                    <div className="space-y-1">
-                      <h1 className="text-[2.5rem] font-bold leading-[1.1] tracking-tight text-white">We sent you a code</h1>
-                      <p className="text-[1.25rem] text-white/50 font-light">Please enter it</p>
-                    </div>
-                    
-                    <div className="w-full">
-                      <div className="relative rounded-full py-4 px-5 border border-white/10 bg-transparent">
-                        <div className="flex items-center justify-center">
-                          {code.map((digit, i) => (
-                            <div key={i} className="flex items-center">
-                              <div className="relative">
-                                <input
-                                  ref={(el) => {
-                                    codeInputRefs.current[i] = el;
-                                  }}
-                                  type="text"
-                                  inputMode="numeric"
-                                  pattern="[0-9]*"
-                                  maxLength={1}
-                                  value={digit}
-                                  onChange={e => handleCodeChange(i, e.target.value)}
-                                  onKeyDown={e => handleKeyDown(i, e)}
-                                  className="w-8 text-center text-xl bg-transparent text-white border-none focus:outline-none focus:ring-0 appearance-none"
-                                  style={{ caretColor: 'transparent' }}
-                                />
-                                {!digit && (
-                                  <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none">
-                                    <span className="text-xl text-white">0</span>
-                                  </div>
-                                )}
-                              </div>
-                              {i < 5 && <span className="text-white/20 text-xl">|</span>}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <motion.p 
-                        className="text-white/50 hover:text-white/70 transition-colors cursor-pointer text-sm"
-                        whileHover={{ scale: 1.02 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        Resend code
-                      </motion.p>
-                    </div>
-                    
-                    <div className="flex w-full gap-3">
-                      <motion.button 
-                        onClick={handleBackClick}
-                        className="rounded-full bg-white text-black font-medium px-8 py-3 hover:bg-white/90 transition-colors w-[30%]"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        Back
-                      </motion.button>
-                      <motion.button 
-                        className={`flex-1 rounded-full font-medium py-3 border transition-all duration-300 ${
-                          code.every(d => d !== "") 
-                          ? "bg-white text-black border-transparent hover:bg-white/90 cursor-pointer" 
-                          : "bg-[#111] text-white/50 border-white/10 cursor-not-allowed"
-                        }`}
-                        disabled={!code.every(d => d !== "")}
-                      >
-                        Continue
-                      </motion.button>
-                    </div>
-                    
-                    <div className="pt-16">
-                      <p className="text-xs text-white/40">
-                        By signing up, you agree to the <Link href="#" className="underline text-white/40 hover:text-white/60 transition-colors">MSA</Link>, <Link href="#" className="underline text-white/40 hover:text-white/60 transition-colors">Product Terms</Link>, <Link href="#" className="underline text-white/40 hover:text-white/60 transition-colors">Policies</Link>, <Link href="#" className="underline text-white/40 hover:text-white/60 transition-colors">Privacy Notice</Link>, and <Link href="#" className="underline text-white/40 hover:text-white/60 transition-colors">Cookie Notice</Link>.
-                      </p>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div 
-                    key="success-step"
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: "easeOut", delay: 0.3 }}
-                    className="space-y-6 text-center"
-                  >
-                    <div className="space-y-1">
-                      <h1 className="text-[2.5rem] font-bold leading-[1.1] tracking-tight text-white">You're in!</h1>
-                      <p className="text-[1.25rem] text-white/50 font-light">Welcome</p>
-                    </div>
-                    
-                    <motion.div 
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ duration: 0.5, delay: 0.5 }}
-                      className="py-10"
-                    >
-                      <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-white to-white/70 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-black" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    <div className="space-y-4 pt-8">
+                      <button onClick={handleGithubSignIn} className="backdrop-blur-[2px] w-full flex items-center justify-center gap-3 bg-white hover:bg-white/90 text-black font-semibold rounded-full py-3 px-4 transition-all hover:scale-[1.02]">
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
                         </svg>
-                      </div>
-                    </motion.div>
-                    
-                    <motion.button 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 1 }}
-                      className="w-full rounded-full bg-white text-black font-medium py-3 hover:bg-white/90 transition-colors"
-                    >
-                      Continue to Dashboard
-                    </motion.button>
+                        <span>Continue with Github</span>
+                      </button>
+                    </div>
                   </motion.div>
-                )}
               </AnimatePresence>
             </div>
           </div>
