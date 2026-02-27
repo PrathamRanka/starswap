@@ -44,7 +44,7 @@ export interface FeedItem {
   engagementScore?: number;
   owner?: {
     username: string;
-    avatar?: string;
+    avatarUrl?: string;
   };
 }
 

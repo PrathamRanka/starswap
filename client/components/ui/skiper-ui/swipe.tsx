@@ -80,8 +80,8 @@ const Carousel_002 = ({
           <SwiperSlide key={`${repo.id}-${index}`} className="flex flex-col p-6 shadow-2xl relative">
             
             <div className="flex-1 flex flex-col items-center text-center justify-center space-y-4">
-              {repo.owner?.avatar ? (
-                <Image src={repo.owner.avatar} alt="Owner Avatar" width={80} height={80} className="w-20 h-20 rounded-full border-2 border-white/20 shadow-lg object-cover" />
+              {repo.owner?.avatarUrl ? (
+                <Image src={repo.owner.avatarUrl} alt="Owner Avatar" width={80} height={80} className="w-20 h-20 rounded-full border-2 border-white/20 shadow-lg object-cover" />
               ) : (
                 <div className="w-20 h-20 rounded-full bg-linear-to-tr from-blue-500 to-purple-500 border-2 border-white/20 flex items-center justify-center text-2xl font-bold font-mono">
                   {repo.owner?.username?.charAt(0).toUpperCase() || '?'}

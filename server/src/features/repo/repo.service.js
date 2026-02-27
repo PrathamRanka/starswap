@@ -1,6 +1,8 @@
 import repoRepository from './repo.repository.js';
+import authRepository from '../auth/auth.repository.js';
 import githubClient from '../../utils/githubClient.js';
 import redis from '../../config/redis.js';
+import prisma from '../../config/prisma.js';
 
 class CustomError extends Error {
   constructor(message, statusCode) {
@@ -34,14 +36,35 @@ const repoService = {
       throw new CustomError('Repository must be public', 400);
     }
 
-    // Validate ownership based on username? 
-    // The PRD says "Repo must belong to authenticated user".
-    // For now we assume front-end enforces or we check if githubData.owner.login matches user's github username.
-    // (Assuming user DB has a username we could check, but we just pass ownership from session for now or skip strict check)
+    // Get or create the actual GitHub repo owner as a User in our database
+    let repoOwnerUserId;
+    try {
+      const ownerProfile = await githubClient.get(`/users/${githubData.owner.login}`);
+      const ownerData = ownerProfile.data;
+      
+      const ownerUser = await prisma.user.upsert({
+        where: { githubId: ownerData.id.toString() },
+        update: {
+          username: ownerData.login,
+          name: ownerData.name,
+          avatarUrl: ownerData.avatar_url
+        },
+        create: {
+          githubId: ownerData.id.toString(),
+          username: ownerData.login,
+          name: ownerData.name,
+          avatarUrl: ownerData.avatar_url
+        }
+      });
+      repoOwnerUserId = ownerUser.id;
+    } catch (err) {
+      console.error('Failed to fetch or create repo owner:', err);
+      throw new CustomError('Failed to process repository owner', 500);
+    }
 
     const repoInput = {
       githubId: githubRepoId,
-      ownerId: userId,
+      ownerId: repoOwnerUserId,
       name: githubData.name,
       fullName: githubData.full_name,
       description: pitch || githubData.description || '',
@@ -56,6 +79,16 @@ const repoService = {
 
     try {
       const newRepo = await repoRepository.createRepo(repoInput);
+      // Flush global feed caches so this new repo appears immediately
+      try {
+        const keys = await redis.keys('feed:cache:*');
+        if (keys.length > 0) {
+          await redis.del(keys);
+        }
+      } catch (e) {
+        console.error('Failed to clear feed cache:', e);
+      }
+      
       return newRepo;
     } catch (dbErr) {
       if (dbErr.code === 'P2002') {
@@ -108,7 +141,11 @@ const repoService = {
       repos = JSON.parse(cachedFeed);
     } else {
       repos = await repoRepository.getFeed(userId, limit, null, cursorId);
-      await redis.set(cacheKey, JSON.stringify(repos), { EX: 60 });
+      if (repos && repos.length > 0) {
+        await redis.set(cacheKey, JSON.stringify(repos), { EX: 60 });
+      } else {
+        repos = [];
+      }
     }
 
     const shuffled = [...repos];
