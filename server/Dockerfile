@@ -6,7 +6,7 @@ ENV NODE_ENV="production" PORT=5000
 # ── Install dependencies ────────────────────────────────────
 FROM base AS deps
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 # ── Generate Prisma client ───────────────────────────────────
 FROM deps AS prisma
