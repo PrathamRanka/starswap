@@ -46,23 +46,13 @@ export default function SwipePage() {
     }
   }, [user]);
 
-  const handleSwipeLeft = async (repo: FeedItem) => {
-    // SKIP
-    try {
-      await swipeApi.submitSwipe(repo.id, 'SKIP');
-    } catch (err) {
-      console.error(err);
-    }
+  const handleSwipeLeft = (repo: FeedItem) => {
+    swipeApi.submitSwipe(repo.id, 'SKIP');
   };
 
-  const handleSwipeRight = async (repo: FeedItem) => {
-    // STAR
-    try {
-      await swipeApi.submitSwipe(repo.id, 'STAR');
-      showToast(`⭐ Starred ${repo.name} on GitHub!`);
-    } catch (err) {
-      console.error(err);
-    }
+  const handleSwipeRight = (repo: FeedItem) => {
+    swipeApi.submitSwipe(repo.id, 'STAR');
+    showToast(`⭐ Starred ${repo.name} on GitHub!`);
   };
 
   if (!user || loading) {
