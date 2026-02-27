@@ -7,5 +7,21 @@ export const leaderboardApi = {
     get<LeaderboardEntry[]>(`/leaderboard?limit=${limit}&period=${period}`),
     
   getUserRank: (userId: string) => 
-    get<{ rank: number }>(`/leaderboard/rank/${userId}`)
+    get<{ rank: number }>(`/leaderboard/rank/${userId}`),
+    
+  getTopRepos: (limit: number = 20) => 
+    get<TopRepo[]>(`/leaderboard/repos?limit=${limit}`)
 };
+
+export interface TopRepo {
+  id: string;
+  name: string;
+  githubStars: number;
+  pitch: string | null;
+  language: string | null;
+  rank: number;
+  owner?: {
+    username: string;
+    avatarUrl?: string;
+  }
+}

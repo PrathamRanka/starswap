@@ -33,6 +33,32 @@ const leaderboardService = {
     if (rank === null) return { rank: null }
 
     return { rank: rank + 1 }
+  },
+
+  async fetchTopRepos(limit = 10) {
+    const repos = await prisma.repo.findMany({
+      where: {
+        isActive: true,
+      },
+      orderBy: {
+        githubStars: 'desc'
+      },
+      take: limit,
+      include: {
+        owner: {
+          select: {
+            username: true,
+            avatarUrl: true
+          }
+        }
+      }
+    })
+
+    // Add a rank index for the frontend to consume
+    return repos.map((repo, index) => ({
+      ...repo,
+      rank: index + 1
+    }))
   }
 
 }

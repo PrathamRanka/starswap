@@ -23,3 +23,15 @@ export const getUserRank = async (req, res, next) => {
     next(err)
   }
 }
+
+export const getTopRepos = async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10
+
+    const result = await leaderboardService.fetchTopRepos(limit)
+
+    res.json({ success: true, data: result })
+  } catch (err) {
+    next(err)
+  }
+}
