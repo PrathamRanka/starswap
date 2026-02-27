@@ -5,7 +5,7 @@ import errorMiddleware from './middleware/error.middleware.js';
 import rateLimit from 'express-rate-limit';
 
 const app = express();
-
+app.set('trust proxy', 1);
 if (!process.env.FRONTEND_URL) {
   console.error('[FATAL] FRONTEND_URL environment variable is missing.');
   process.exit(1);
