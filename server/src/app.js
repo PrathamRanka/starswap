@@ -9,16 +9,15 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(sessionConfig);
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK' });
-});
-
 import authRoutes from './features/auth/auth.routes.js'
 import swipeRoutes from './features/swipe/swipe.routes.js'
+import leaderboardRoutes from './features/leaderboard/leaderboard.routes.js'
+
 
 
 app.use('/auth', authRoutes)
 app.use('/swipe', swipeRoutes)
+app.use('/leaderboard', leaderboardRoutes)
 
 
 app.use(errorMiddleware);
