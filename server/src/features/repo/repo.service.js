@@ -50,12 +50,19 @@ const repoService = {
       githubStars: githubData.stargazers_count,
       forks: githubData.forks_count,
       watchers: githubData.watchers_count,
-      visibilityScore: 0, // initially 0 or calculate from owner's leaderboard Score
+      visibilityScore: 0,
       engagementScore: 0
     };
 
-    const newRepo = await repoRepository.createRepo(repoInput);
-    return newRepo;
+    try {
+      const newRepo = await repoRepository.createRepo(repoInput);
+      return newRepo;
+    } catch (dbErr) {
+      if (dbErr.code === 'P2002') {
+        throw new CustomError('Repository already submitted (conflict caught)', 409);
+      }
+      throw dbErr;
+    }
   },
 
   async syncRepository(repoId) {
@@ -100,19 +107,12 @@ const repoService = {
     if (cachedFeed) {
       repos = JSON.parse(cachedFeed);
     } else {
-      // Uses Cursor-Based Pagination on Database (O(1) offset lookup)
       repos = await repoRepository.getFeed(userId, limit, null, cursorId);
-      // Cache for 60 seconds to prevent DB hammering on rapid sequential swipes
       await redis.set(cacheKey, JSON.stringify(repos), { EX: 60 });
     }
 
-    // Algorithm: Weighted Randomized Rank-Biased Feed
-    // We add controlled random jitter to prevent all users from seeing the exact same deterministic feed order.
-    // We shuffle repos locally within this window so they feel organic.
-    // Fisher-Yates Shuffle with bounded jitter.
     const shuffled = [...repos];
     for (let i = shuffled.length - 1; i > 0; i--) {
-      // mild shuffle: only swap with immediate neighbors or keep in place
       const swapWith = Math.max(0, i - Math.floor(Math.random() * 2));
       [shuffled[i], shuffled[swapWith]] = [shuffled[swapWith], shuffled[i]];
     }

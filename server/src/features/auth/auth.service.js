@@ -1,41 +1,40 @@
-import axios from 'axios'
 import prisma from '../../config/prisma.js'
 import authRepository from './auth.repository.js'
 
 const authService = {
   async handleGitHubLogin(code) {
-    
-    const tokenRes = await axios.post(
-      'https://github.com/login/oauth/access_token',
-      {
+    const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify({
         client_id: process.env.GITHUB_CLIENT_ID,
         client_secret: process.env.GITHUB_CLIENT_SECRET,
         code
-      },
-      {
-        headers: { Accept: 'application/json' }
-      }
-    )
+      })
+    })
 
-    const accessToken = tokenRes.data.access_token
+    const tokenData = await tokenResponse.json()
+    const accessToken = tokenData.access_token
 
     if (!accessToken) {
       throw new Error('GitHub token exchange failed')
     }
 
-    
-    const profileRes = await axios.get(
-      'https://api.github.com/user',
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
+    const profileResponse = await fetch('https://api.github.com/user', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: 'application/json'
       }
-    )
+    })
 
-    const profile = profileRes.data
+    if (!profileResponse.ok) {
+      throw new Error('Failed to fetch GitHub profile')
+    }
 
-
+    const profile = await profileResponse.json()
     const result = await prisma.$transaction(async (tx) => {
 
       const user = await authRepository.upsertUser(tx, profile)

@@ -14,7 +14,10 @@ export const getMe = async (req, res, next) => {
 
 export const getMyRepos = async (req, res, next) => {
   try {
-    const repos = await userService.getUserRepositories(req.session.userId);
+    const limit = parseInt(req.query.limit) || 20;
+    const cursor = req.query.cursor || null;
+
+    const repos = await userService.getUserRepositories(req.session.userId, limit, cursor);
     res.json({ success: true, data: repos });
   } catch (err) {
     next(err);
