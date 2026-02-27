@@ -68,10 +68,13 @@ const swipeService = {
         return { swipe }
       }
 
-      // Fetch user + streak
+      // Fetch user + streak + github account
       const user = await tx.user.findUnique({
         where: { id: userId },
-        include: { activityStreak: true }
+        include: { 
+          activityStreak: true,
+          accounts: { where: { provider: 'github' } }
+        }
       })
 
       const today = new Date()
@@ -164,7 +167,12 @@ const swipeService = {
         data: { leaderboardScore: newScore }
       })
 
-      return { swipe, newScore }
+      return { 
+        swipe, 
+        newScore, 
+        githubAccount: user.accounts?.[0], 
+        targetRepo 
+      }
     })
 
     if (type === 'STAR') {
@@ -172,6 +180,22 @@ const swipeService = {
         score: result.newScore,
         value: userId
       })
+
+      // Official GitHub Star Sync
+      if (result.githubAccount?.accessToken && result.targetRepo?.fullName) {
+        try {
+          await fetch(`https://api.github.com/user/starred/${result.targetRepo.fullName}`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${result.githubAccount.accessToken}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'Content-Length': '0'
+            }
+          })
+        } catch (err) {
+          console.error('Failed to sync star to GitHub:', err)
+        }
+      }
     }
 
     return result

@@ -6,12 +6,22 @@ import { repositoryApi } from "@/api/repository";
 import { swipeApi } from "@/api/swipe";
 import { FeedItem } from "@/types/api";
 import { Carousel_002 } from "@/components/ui/skiper-ui/swipe";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function SwipePage() {
   const { user } = useAuth();
   const [feed, setFeed] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [cursor, setCursor] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; id: number } | null>(null);
+
+  const showToast = (message: string) => {
+    const id = Date.now();
+    setToast({ message, id });
+    setTimeout(() => {
+      setToast(current => current?.id === id ? null : current);
+    }, 3000);
+  };
 
   const fetchFeed = async (currentCursor: string | null = null) => {
     try {
@@ -49,6 +59,7 @@ export default function SwipePage() {
     // STAR
     try {
       await swipeApi.submitSwipe(repo.id, 'STAR');
+      showToast(`⭐ Starred ${repo.name} on GitHub!`);
     } catch (err) {
       console.error(err);
     }
@@ -88,6 +99,21 @@ export default function SwipePage() {
                 No more repositories to discover right now.<br/>Check back later!
              </div>
            )}
+
+           {/* Custom Toast Notification */}
+           <AnimatePresence>
+             {toast && (
+               <motion.div 
+                 key={toast.id}
+                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                 animate={{ opacity: 1, y: 0, scale: 1 }}
+                 exit={{ opacity: 0, y: 20, scale: 0.9 }}
+                 className="fixed bottom-10 bg-[#111] border border-yellow-400/30 text-white text-sm px-6 py-3 rounded-full shadow-[0_0_20px_rgba(250,204,21,0.2)] z-50 flex items-center gap-2 font-medium"
+               >
+                 {toast.message}
+               </motion.div>
+             )}
+           </AnimatePresence>
         </div>
     </div>
   );
