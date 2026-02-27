@@ -486,7 +486,7 @@ export const SignInPage = ({ className }: SignInPageProps) => {
   };
 
   return (
-    <div className={cn("flex w-[100%] flex-col min-h-screen bg-black relative", className)}>
+    <div className={cn("flex w-full flex-col min-h-screen bg-black relative", className)}>
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0">
           <CanvasRevealEffect

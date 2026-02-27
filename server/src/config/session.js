@@ -1,7 +1,7 @@
 // src/config/session.js
 
 import session from 'express-session';
-import RedisStore from 'connect-redis';
+import {RedisStore} from 'connect-redis';
 import redisClient from './redis.js';
 import { v4 as uuidv4 } from 'uuid';
 
