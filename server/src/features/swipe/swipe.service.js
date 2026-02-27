@@ -20,15 +20,14 @@ const swipeService = {
     }
 
     const result = await prisma.$transaction(async (tx) => {
-
-      // Soft trust decay
       if (current > 20) {
         const penaltyUser = await tx.user.findUnique({
           where: { id: userId },
           select: { trustScore: true }
         })
 
-        const newTrust = Math.max(penaltyUser.trustScore - 0.05, 0.1)
+        // Asymptotic curve instead of direct linear drop
+        const newTrust = Math.max(0.05, penaltyUser.trustScore * 0.9)
 
         await tx.user.update({
           where: { id: userId },
@@ -38,7 +37,7 @@ const swipeService = {
         await tx.abuseLog.create({
           data: {
             userId,
-            reason: 'High swipe velocity',
+            reason: 'High swipe velocity (Trust decayed asymptotically)',
             severity: 0.2
           }
         })
@@ -47,6 +46,13 @@ const swipeService = {
       const existing = await swipeRepository.findExistingSwipe(tx, userId, repoId)
       if (existing) {
         throw new Error('Already swiped this repository')
+      }
+      const targetRepo = await tx.repo.findUnique({ where: { id: repoId } })
+      if (!targetRepo) {
+        throw new Error('Repository does not exist')
+      }
+      if (targetRepo.ownerId === userId) {
+        throw new Error('Self-swiping interaction is forbidden.')
       }
 
       const swipe = await swipeRepository.createSwipe(

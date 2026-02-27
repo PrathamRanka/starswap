@@ -2,13 +2,14 @@ import cron from 'node-cron';
 import prisma from '../config/prisma.js';
 import redis from '../config/redis.js';
 import logger from '../utils/logger.js';
-import { calculateLeaderboardScore } from '../utils/scoring.js';
+import { calculateLeaderboardScore, calculateVisibilityScore } from '../utils/scoring.js';
 
 // Run every hour to ensure DB and Redis ZSET are perfectly synced and no scores drifted
 const startLeaderboardRecalcJob = () => {
   cron.schedule('0 * * * *', async () => {
     logger.info('Starting Leaderboard Recalculation Job');
     try {
+      // 1. Recalculate User Leaderboards
       const allUsers = await prisma.user.findMany({
         where: { isBlocked: false, trustScore: { gt: 0 } },
         select: {
@@ -44,7 +45,22 @@ const startLeaderboardRecalcJob = () => {
       }
 
       await pipeline.exec();
-      logger.info(`Completed Leaderboard Recalculation Job. Synced ${allUsers.length} users.`);
+      
+      // 2. Recalculate Feed Rank (Visibility Gravity Time-Decay)
+      const allRepos = await prisma.repo.findMany({
+        where: { isActive: true },
+        select: { id: true, engagementScore: true, createdAt: true }
+      });
+
+      for (const repo of allRepos) {
+        const newVisibility = calculateVisibilityScore(repo.engagementScore, repo.createdAt);
+        await prisma.repo.update({
+          where: { id: repo.id },
+          data: { visibilityScore: newVisibility }
+        });
+      }
+
+      logger.info(`Completed Recalc Job. Synced ${allUsers.length} users, decayed ${allRepos.length} repos.`);
     } catch (err) {
       logger.error(`Leaderboard Recalc Job failed: ${err.message}`);
     }
