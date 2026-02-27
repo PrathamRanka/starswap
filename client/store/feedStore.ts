@@ -32,8 +32,8 @@ export const useFeedStore = create<FeedState>((set, get) => ({
       const response = await repositoryApi.getFeed(nextCursor || undefined, 10);
       
       if (response.success) {
-        const newFeed = response.data.feed;
-        const newCursor = response.data.nextCursor;
+        const newFeed = response.data;
+        const newCursor = response.meta?.nextCursor ?? null;
         
         set((state) => ({
           feed: [...state.feed, ...newFeed], // Append the new items logically for infinite scroll

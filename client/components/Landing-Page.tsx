@@ -265,7 +265,8 @@ const ShaderMaterial = ({
   });
 
   const getUniforms = React.useCallback(() => {
-    const preparedUniforms: Record<string, unknown> = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const preparedUniforms: Record<string, any> = {};
 
     for (const uniformName in uniforms) {
       const uniform = uniforms[uniformName];
