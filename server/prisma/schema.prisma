@@ -34,7 +34,8 @@ model User {
   swipes         SwipeAction[]
   abuseLogs      AbuseLog[]
   activityStreak ActivityStreak?
-
+  trustScore Float @default(1.0)
+ lastSwipeAt DateTime?
   @@index([leaderboardScore])
   @@index([githubId])
 }
@@ -112,6 +113,8 @@ model SwipeAction {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   repo Repo @relation(fields: [repoId], references: [id], onDelete: Cascade)
+  trustScore Float @default(1.0)
+  lastSwipeAt DateTime?
 
   @@unique([userId, repoId])
   @@index([repoId])

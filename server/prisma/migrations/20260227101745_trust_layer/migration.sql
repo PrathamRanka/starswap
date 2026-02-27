@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "SwipeAction" ADD COLUMN     "lastSwipeAt" TIMESTAMP(3),
+ADD COLUMN     "trustScore" DOUBLE PRECISION NOT NULL DEFAULT 1.0;
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "lastSwipeAt" TIMESTAMP(3),
+ADD COLUMN     "trustScore" DOUBLE PRECISION NOT NULL DEFAULT 1.0;
