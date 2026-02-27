@@ -93,8 +93,18 @@ const repoService = {
   },
 
   async generateFeed(userId, cursorId, limit = 10) {
-    // Uses Cursor-Based Pagination on Database (O(1) offset lookup)
-    const repos = await repoRepository.getFeed(userId, limit, null, cursorId);
+    const cacheKey = `feed:cache:${userId}:${cursorId || 'start'}`;
+    const cachedFeed = await redis.get(cacheKey);
+    let repos;
+
+    if (cachedFeed) {
+      repos = JSON.parse(cachedFeed);
+    } else {
+      // Uses Cursor-Based Pagination on Database (O(1) offset lookup)
+      repos = await repoRepository.getFeed(userId, limit, null, cursorId);
+      // Cache for 60 seconds to prevent DB hammering on rapid sequential swipes
+      await redis.set(cacheKey, JSON.stringify(repos), { EX: 60 });
+    }
 
     // Algorithm: Weighted Randomized Rank-Biased Feed
     // We add controlled random jitter to prevent all users from seeing the exact same deterministic feed order.
