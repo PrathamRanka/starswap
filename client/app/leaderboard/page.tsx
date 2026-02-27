@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { leaderboardApi, TopRepo } from "@/api/leaderboard";
 import { motion } from "framer-motion";
+import { GlobalDock } from "@/components/layout/GlobalDock";
 
 export default function LeaderboardPage() {
   const { user } = useAuth();
@@ -131,6 +132,7 @@ export default function LeaderboardPage() {
           </div>
         </div>
       </div>
+      <GlobalDock />
     </div>
   );
 }
