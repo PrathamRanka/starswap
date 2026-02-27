@@ -1,7 +1,8 @@
 "use client";
 
+//import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
-import React from "react";
 import { Autoplay, EffectCards, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css/effect-cards";
@@ -80,7 +81,7 @@ const Carousel_002 = ({
             
             <div className="flex-1 flex flex-col items-center text-center justify-center space-y-4">
               {repo.owner?.avatar ? (
-                <img src={repo.owner.avatar} alt="Owner Avatar" className="w-20 h-20 rounded-full border-2 border-white/20 shadow-lg object-cover" />
+                <Image src={repo.owner.avatar} alt="Owner Avatar" width={80} height={80} className="w-20 h-20 rounded-full border-2 border-white/20 shadow-lg object-cover" />
               ) : (
                 <div className="w-20 h-20 rounded-full bg-linear-to-tr from-blue-500 to-purple-500 border-2 border-white/20 flex items-center justify-center text-2xl font-bold font-mono">
                   {repo.owner?.username?.charAt(0).toUpperCase() || '?'}

@@ -6,7 +6,7 @@ import {
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useAuth } from "@/hooks/useAuth";
+//import { useAuth } from "@/hooks/useAuth";
 import { authApi } from "@/api/auth";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";

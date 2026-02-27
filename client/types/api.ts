@@ -3,7 +3,7 @@ export interface ApiResponse<T> {
   data: T;
   meta?: {
     nextCursor?: string | null;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
@@ -12,7 +12,7 @@ export interface ApiError {
   error: {
     code: string;
     message: string;
-    details?: any;
+    details?: unknown;
   };
 }
 

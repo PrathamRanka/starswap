@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { leaderboardApi, TopRepo } from "@/api/leaderboard";
 import { motion } from "framer-motion";
 import { GlobalDock } from "@/components/layout/GlobalDock";
+import Image from "next/image";
 
 export default function LeaderboardPage() {
   const { user } = useAuth();
@@ -75,7 +76,7 @@ export default function LeaderboardPage() {
                    animate={{ opacity: 1, y: 0 }}
                    transition={{ delay: idx * 0.05 }}
                    key={repo.id}
-                   className="grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-5 border-b border-white/5 last:border-0 items-center hover:bg-white/[0.03] transition-colors group relative"
+                   className="grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-5 border-b border-white/5 last:border-0 items-center hover:bg-white/5 transition-colors group relative"
                  >
                    
                    {/* Rank */}
@@ -90,7 +91,7 @@ export default function LeaderboardPage() {
                      {repo.owner?.avatarUrl ? (
                         <div className="relative">
                           {repo.rank === 1 && <div className="absolute -top-3 -left-2 text-2xl rotate-[-15deg]">👑</div>}
-                          <img src={repo.owner.avatarUrl} alt="Avatar" className={`w-12 h-12 rounded-xl object-cover border-2 shadow-lg ${repo.rank === 1 ? 'border-yellow-400' : repo.rank === 2 ? 'border-gray-300' : repo.rank === 3 ? 'border-amber-700' : 'border-white/10'}`} />
+                          <Image src={repo.owner.avatarUrl} alt="Avatar" width={48} height={48} className={`w-12 h-12 rounded-xl object-cover border-2 shadow-lg ${repo.rank === 1 ? 'border-yellow-400' : repo.rank === 2 ? 'border-gray-300' : repo.rank === 3 ? 'border-amber-700' : 'border-white/10'}`} />
                         </div>
                      ) : (
                         <div className={`w-12 h-12 rounded-xl bg-white/10 border-2 flex items-center justify-center font-bold font-mono ${repo.rank === 1 ? 'border-yellow-400 text-yellow-400' : repo.rank === 2 ? 'border-gray-300 text-gray-300' : repo.rank === 3 ? 'border-amber-700 text-amber-700' : 'border-white/10 text-white/50'}`}>
@@ -104,7 +105,7 @@ export default function LeaderboardPage() {
                    </div>
 
                    {/* Mobile Language & Stars */}
-                   <div className="md:hidden flex items-center gap-4 mt-2 pl-[4.5rem]">
+                   <div className="md:hidden flex items-center gap-4 mt-2 pl-12">
                      <div className="flex items-center gap-1.5 text-xs text-white/50">
                         <span className="w-2 h-2 rounded-full bg-yellow-400 opacity-80"></span>
                         {repo.language || 'Unknown'}

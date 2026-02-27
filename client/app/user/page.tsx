@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { RepoSubmissionCard } from "@/components/RepoSubmissionCard";
 import { GlobalDock } from "@/components/layout/GlobalDock";
+import Image from "next/image";
 
 interface GithubRepo {
   id: number;
@@ -63,9 +64,11 @@ export default function UserProfilePage() {
         <div className="flex items-center gap-6">
           <div className="relative">
             {user.avatarUrl ? (
-              <img 
+              <Image 
                 src={user.avatarUrl} 
                 alt={`${user.username}'s avatar`}
+                width={80}
+                height={80}
                 className="w-20 h-20 rounded-full object-cover shadow-xl border-2 border-white/10"
               />
             ) : (

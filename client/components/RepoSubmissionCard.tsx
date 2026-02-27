@@ -25,9 +25,9 @@ export function RepoSubmissionCard({ githubRepoId, name, description, language, 
       return;
     }
     
-    // Suggest 30 words min if possible to the user visually, but enforce 180 chars limit
-    if (pitch.length < 50) {
-      setErrorMsg("Pitch is too short. Tell us why this repo is awesome in ~20-30 words!");
+    // Give them a tiny minimum so they at least write something
+    if (pitch.trim().length < 10) {
+      setErrorMsg("Pitch is too short. Please write at least a short sentence.");
       return;
     }
 

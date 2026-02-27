@@ -265,7 +265,7 @@ const ShaderMaterial = ({
   });
 
   const getUniforms = React.useCallback(() => {
-    const preparedUniforms: Record<string, any> = {};
+    const preparedUniforms: Record<string, unknown> = {};
 
     for (const uniformName in uniforms) {
       const uniform = uniforms[uniformName];
