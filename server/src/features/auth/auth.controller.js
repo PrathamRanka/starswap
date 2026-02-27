@@ -26,7 +26,7 @@ export const githubCallback = async (req, res, next) => {
     req.session.userId = user.id
     req.session.username = user.username
 
-    res.redirect(process.env.FRONTEND_URL)
+    res.redirect(`${process.env.FRONTEND_URL}/user`)
   } catch (err) {
     next(err)
   }
