@@ -11,7 +11,7 @@ const startLeaderboardRecalcJob = () => {
     try {
       // 1. Recalculate User Leaderboards in Batches to prevent OOM
       const BATCH_SIZE = 500;
-      let userSkip = 0;
+      let lastUserId = null;
       let hasMoreUsers = true;
       let totalUsersProcessed = 0;
 
@@ -24,11 +24,12 @@ const startLeaderboardRecalcJob = () => {
             streakCount: true,
             trustScore: true,
             reposOwned: {
-              select: { starsReceived: true }
+              select: { githubStars: true } // Fixed: Use valid 'githubStars' field on Repo
             }
           },
           take: BATCH_SIZE,
-          skip: userSkip
+          ...(lastUserId && { skip: 1, cursor: { id: lastUserId } }),
+          orderBy: { id: 'asc' }
         });
 
         if (userBatch.length === 0) {
@@ -37,17 +38,22 @@ const startLeaderboardRecalcJob = () => {
         }
 
         const pipeline = redis.multi();
+        const updatePromises = [];
 
         for (const user of userBatch) {
-          const totalReceived = user.reposOwned.reduce((sum, repo) => sum + repo.starsReceived, 0);
+          // Correct calculation: Sum actual GitHub stars attached to your owned repos
+          const totalReceived = user.reposOwned.reduce((sum, repo) => sum + repo.githubStars, 0);
           const ownerMock = { starsReceived: totalReceived };
           
           const newScore = calculateLeaderboardScore(user, ownerMock);
 
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { leaderboardScore: newScore }
-          });
+          // Batch inside an array to prevent N+1 execute queries
+          updatePromises.push(
+            prisma.user.update({
+              where: { id: user.id },
+              data: { leaderboardScore: newScore }
+            })
+          );
 
           pipeline.zAdd('leaderboard', {
             score: newScore,
@@ -55,14 +61,18 @@ const startLeaderboardRecalcJob = () => {
           });
         }
 
+        // Commit all updates for the batch concurrently
+        if (updatePromises.length > 0) {
+          await prisma.$transaction(updatePromises);
+        }
         await pipeline.exec();
         
-        userSkip += BATCH_SIZE;
+        lastUserId = userBatch[userBatch.length - 1].id;
         totalUsersProcessed += userBatch.length;
       }
       
       // 2. Recalculate Feed Rank (Visibility Gravity Time-Decay) in Batches
-      let repoSkip = 0;
+      let lastRepoId = null;
       let hasMoreRepos = true;
       let totalReposProcessed = 0;
 
@@ -71,7 +81,8 @@ const startLeaderboardRecalcJob = () => {
           where: { isActive: true },
           select: { id: true, engagementScore: true, createdAt: true },
           take: BATCH_SIZE,
-          skip: repoSkip
+          ...(lastRepoId && { skip: 1, cursor: { id: lastRepoId } }),
+          orderBy: { id: 'asc' }
         });
 
         if (repoBatch.length === 0) {
@@ -79,15 +90,22 @@ const startLeaderboardRecalcJob = () => {
           break;
         }
 
+        const repoUpdatePromises = [];
         for (const repo of repoBatch) {
           const newVisibility = calculateVisibilityScore(repo.engagementScore, repo.createdAt);
-          await prisma.repo.update({
-            where: { id: repo.id },
-            data: { visibilityScore: newVisibility }
-          });
+          repoUpdatePromises.push(
+            prisma.repo.update({
+              where: { id: repo.id },
+              data: { visibilityScore: newVisibility }
+            })
+          );
         }
 
-        repoSkip += BATCH_SIZE;
+        if (repoUpdatePromises.length > 0) {
+          await prisma.$transaction(repoUpdatePromises);
+        }
+
+        lastRepoId = repoBatch[repoBatch.length - 1].id;
         totalReposProcessed += repoBatch.length;
       }
 
