@@ -13,6 +13,13 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK' });
 });
 
+import authRoutes from './features/auth/auth.routes.js'
+import swipeRoutes from './features/swipe/swipe.routes.js'
+
+
+app.use('/auth', authRoutes)
+app.use('/swipe', swipeRoutes)
+
 
 app.use(errorMiddleware);
 
