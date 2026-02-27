@@ -7,7 +7,6 @@ import { swipeApi } from "@/api/swipe";
 import { FeedItem } from "@/types/api";
 import { Carousel_002 } from "@/components/ui/skiper-ui/swipe";
 import { motion, AnimatePresence } from "framer-motion";
-import { GlobalDock } from "@/components/layout/GlobalDock";
 
 export default function SwipePage() {
   const { user } = useAuth();
@@ -116,7 +115,6 @@ export default function SwipePage() {
              )}
            </AnimatePresence>
         </div>
-        <GlobalDock />
     </div>
   );
 }

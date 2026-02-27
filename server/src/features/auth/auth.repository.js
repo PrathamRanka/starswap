@@ -1,3 +1,5 @@
+import { encrypt } from '../../utils/crypto.js'
+
 const authRepository = {
 
   async upsertUser(tx, profile) {
@@ -18,6 +20,8 @@ const authRepository = {
   },
 
   async upsertAccount(tx, userId, profile, accessToken) {
+    const encryptedToken = encrypt(accessToken);
+
     return tx.account.upsert({
       where: {
         provider_providerAccountId: {
@@ -26,13 +30,13 @@ const authRepository = {
         }
       },
       update: {
-        accessToken
+        accessToken: encryptedToken
       },
       create: {
         userId,
         provider: 'github',
         providerAccountId: profile.id.toString(),
-        accessToken
+        accessToken: encryptedToken
       }
     })
   },

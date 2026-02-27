@@ -102,6 +102,7 @@ model Repo {
   @@index([engagementScore])
   @@index([visibilityScore])
   @@index([isActive, visibilityScore(sort: Desc), id(sort: Desc)])
+  @@index([isActive, githubStars(sort: Desc)])
 }
 
 model SwipeAction {

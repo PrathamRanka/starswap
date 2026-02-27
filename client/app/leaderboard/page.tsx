@@ -4,7 +4,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { leaderboardApi, TopRepo } from "@/api/leaderboard";
 import { motion } from "framer-motion";
-import { GlobalDock } from "@/components/layout/GlobalDock";
 import Image from "next/image";
 
 export default function LeaderboardPage() {
@@ -133,7 +132,6 @@ export default function LeaderboardPage() {
           </div>
         </div>
       </div>
-      <GlobalDock />
     </div>
   );
 }

@@ -33,24 +33,25 @@ export function RepoSubmissionCard({ githubRepoId, name, description, language, 
 
     setIsSubmitting(true);
     setErrorMsg("");
-    try {
-      await repositoryApi.submitRepo({
-        githubRepoId,
-        pitch
-      });
-      setSuccess(true);
-    } catch (err: unknown) {
-      // Handle the 409 and other specific contract errors
-      const error = err as { response?: { status?: number, data?: { error?: { code?: string, message?: string } } } };
-      const code = error.response?.data?.error?.code;
-      if (code === "ALREADY_SUBMITTED" || error.response?.status === 409) {
+
+    const result = await repositoryApi.submitRepo({
+      githubRepoId,
+      pitch
+    });
+
+    setIsSubmitting(false);
+
+    if (!result.success) {
+      const code = result.error?.code;
+      if (code === "ALREADY_SUBMITTED" || code === "CONFLICT") {
         setErrorMsg("You have already submitted this repository.");
       } else {
-        setErrorMsg(error.response?.data?.error?.message || "Failed to submit repository.");
+        setErrorMsg(result.error?.message || "Failed to submit repository.");
       }
-    } finally {
-      setIsSubmitting(false);
+      return;
     }
+
+    setSuccess(true);
   };
 
   if (success) {

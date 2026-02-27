@@ -4,7 +4,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { RepoSubmissionCard } from "@/components/RepoSubmissionCard";
-import { GlobalDock } from "@/components/layout/GlobalDock";
 import Image from "next/image";
 
 interface GithubRepo {
@@ -141,8 +140,6 @@ export default function UserProfilePage() {
           ))}
         </div>
       </section>
-
-      <GlobalDock />
     </div>
   );
 }

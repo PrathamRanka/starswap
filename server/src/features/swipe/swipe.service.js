@@ -3,6 +3,7 @@ import redis from '../../config/redis.js'
 import swipeRepository from './swipe.repository.js'
 import { calculateLeaderboardScore } from '../../utils/scoring.js'
 import { differenceInDaysUTC } from '../../utils/streak.js'
+import { decrypt } from '../../utils/crypto.js'
 
 const swipeService = {
 
@@ -21,17 +22,11 @@ const swipeService = {
 
     const result = await prisma.$transaction(async (tx) => {
       if (current > 20) {
-        const penaltyUser = await tx.user.findUnique({
-          where: { id: userId },
-          select: { trustScore: true }
-        })
-
-        // Asymptotic curve instead of direct linear drop
-        const newTrust = Math.max(0.05, penaltyUser.trustScore * 0.9)
-
+      if (current > 20) {
+        // Atomic multiply to avoid read-modify-write race conditions
         await tx.user.update({
           where: { id: userId },
-          data: { trustScore: newTrust }
+          data: { trustScore: { multiply: 0.9 } }
         })
 
         await tx.abuseLog.create({
@@ -43,10 +38,6 @@ const swipeService = {
         })
       }
 
-      const existing = await swipeRepository.findExistingSwipe(tx, userId, repoId)
-      if (existing) {
-        throw new Error('Already swiped this repository')
-      }
       const targetRepo = await tx.repo.findUnique({ where: { id: repoId } })
       if (!targetRepo) {
         throw new Error('Repository does not exist')
@@ -55,14 +46,22 @@ const swipeService = {
         throw new Error('Self-swiping interaction is forbidden.')
       }
 
-      const swipe = await swipeRepository.createSwipe(
-        tx,
-        userId,
-        repoId,
-        type,
-        ipAddress,
-        userAgent
-      )
+      let swipe;
+      try {
+        swipe = await swipeRepository.createSwipe(
+          tx,
+          userId,
+          repoId,
+          type,
+          ipAddress,
+          userAgent
+        )
+      } catch (error) {
+        if (error.code === 'P2002') {
+          throw new Error('Already swiped this repository')
+        }
+        throw error;
+      }
 
       if (type !== 'STAR') {
         return { swipe }
@@ -184,16 +183,21 @@ const swipeService = {
       // Official GitHub Star Sync
       if (result.githubAccount?.accessToken && result.targetRepo?.fullName) {
         try {
-          await fetch(`https://api.github.com/user/starred/${result.targetRepo.fullName}`, {
+          const rawToken = decrypt(result.githubAccount.accessToken);
+          const res = await fetch(`https://api.github.com/user/starred/${result.targetRepo.fullName}`, {
             method: 'PUT',
             headers: {
-              'Authorization': `Bearer ${result.githubAccount.accessToken}`,
+              'Authorization': `Bearer ${rawToken}`,
               'Accept': 'application/vnd.github.v3+json',
               'Content-Length': '0'
             }
           })
+          if (!res.ok) {
+            throw new Error(`GitHub API responded with status ${res.status}`)
+          }
         } catch (err) {
-          console.error('Failed to sync star to GitHub:', err)
+          console.error('[CRITICAL] Failed to sync star to GitHub:', err.message)
+          // Future: push this missed sync into a Redis retry queue for eventual consistency
         }
       }
     }

@@ -1,12 +1,20 @@
 import cron from 'node-cron';
 import prisma from '../config/prisma.js';
 import logger from '../utils/logger.js';
+import redisClient from '../config/redis.js';
 
 // Runs once a day at midnight
 const startAbuseMonitorJob = () => {
   cron.schedule('0 0 * * *', async () => {
-    logger.info('Starting Abuse Monitor Job');
     try {
+      const lockKey = 'job:lock:abuseMonitor';
+      const acquired = await redisClient.set(lockKey, 'locked', { EX: 3600, NX: true });
+      if (!acquired) {
+        logger.info('Abuse Monitor Job is already running on another instance. Skipping.');
+        return;
+      }
+      
+      logger.info('Starting Abuse Monitor Job');
       // Identify anomalies: e.g., users with high streaks but 0 stars received/repos 
       // This flags potential bots just farming left-swipes
       
