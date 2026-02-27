@@ -61,10 +61,17 @@ export default function UserProfilePage() {
       <section className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-md">
         <div className="flex items-center gap-6">
           <div className="relative">
-            {/* We don't have avatar yet from backend, but could mock or use generic */}
-            <div className="w-20 h-20 rounded-full bg-linear-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-2xl font-bold font-mono shadow-xl">
-              {user.username.charAt(0).toUpperCase()}
-            </div>
+            {user.avatarUrl ? (
+              <img 
+                src={user.avatarUrl} 
+                alt={`${user.username}'s avatar`}
+                className="w-20 h-20 rounded-full object-cover shadow-xl border-2 border-white/10"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-linear-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-2xl font-bold font-mono shadow-xl border-2 border-white/10">
+                {user.username.charAt(0).toUpperCase()}
+              </div>
+            )}
             {/* The Green Connection Status */}
             <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-4 border-black rounded-full shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
           </div>

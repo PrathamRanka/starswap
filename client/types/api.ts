@@ -22,6 +22,7 @@ export interface User {
   id: string;
   githubId?: string;
   username: string;
+  avatarUrl?: string;
   leaderboardScore: number;
   streakCount: number;
   starsGiven?: number;
