@@ -35,6 +35,7 @@ const repoRepository = {
     
     const whereClause = {
       isActive: true,
+      ownerId: { not: userId }, // never show the user their own repos
       swipes: {
         none: { userId }
       }

@@ -180,23 +180,36 @@ const swipeService = {
       })
 
       // Official GitHub Star Sync
-      if (result.githubAccount?.accessToken && result.targetRepo?.fullName) {
+      const token = result.githubAccount?.accessToken;
+      const fullName = result.targetRepo?.fullName;
+
+      if (!token) {
+        console.error('[GitHubSync] No access token found for user', userId);
+      } else if (!fullName) {
+        console.error('[GitHubSync] No fullName on targetRepo', repoId);
+      } else {
         try {
-          const rawToken = decrypt(result.githubAccount.accessToken);
-          const res = await fetch(`https://api.github.com/user/starred/${result.targetRepo.fullName}`, {
-            method: 'PUT',
-            headers: {
-              'Authorization': `Bearer ${rawToken}`,
-              'Accept': 'application/vnd.github.v3+json',
-              'Content-Length': '0'
+          const rawToken = decrypt(token);
+          if (!rawToken) {
+            console.error('[GitHubSync] Token decryption returned null — user must re-login to refresh token');
+          } else {
+            const res = await fetch(`https://api.github.com/user/starred/${fullName}`, {
+              method: 'PUT',
+              headers: {
+                'Authorization': `Bearer ${rawToken}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Length': '0'
+              }
+            });
+            if (res.ok || res.status === 204) {
+              console.log(`[GitHubSync] Successfully starred ${fullName} for user ${userId}`);
+            } else {
+              const body = await res.text();
+              console.error(`[GitHubSync] GitHub API returned ${res.status} for ${fullName}:`, body);
             }
-          })
-          if (!res.ok) {
-            throw new Error(`GitHub API responded with status ${res.status}`)
           }
         } catch (err) {
-          console.error('[CRITICAL] Failed to sync star to GitHub:', err.message)
-          // Future: push this missed sync into a Redis retry queue for eventual consistency
+          console.error('[GitHubSync] Unexpected error:', err.message);
         }
       }
     }
