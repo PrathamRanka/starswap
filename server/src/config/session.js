@@ -9,17 +9,19 @@ const redisStore = new RedisStore({
   client: redisClient,
   prefix: 'sess:'
 });
+const isProd = process.env.NODE_ENV === "production";
 
 const sessionConfig = session({
   store: redisStore,
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  proxy: true,
   genid: () => uuidv4(),
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
     maxAge: 1000 * 60 * 60 * 24 * 7
   }
 });
