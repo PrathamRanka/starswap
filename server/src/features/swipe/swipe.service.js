@@ -22,7 +22,6 @@ const swipeService = {
 
     const result = await prisma.$transaction(async (tx) => {
       if (current > 20) {
-      if (current > 20) {
         // Atomic multiply to avoid read-modify-write race conditions
         await tx.user.update({
           where: { id: userId },
