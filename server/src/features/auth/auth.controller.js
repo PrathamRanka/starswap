@@ -26,7 +26,16 @@ export const githubCallback = async (req, res, next) => {
     req.session.userId = user.id
     req.session.username = user.username
 
-    res.redirect(`${process.env.FRONTEND_URL}/user`)
+    // CRITICAL: explicitly save to Redis BEFORE redirecting.
+    // Without this, res.redirect() fires before the session is persisted,
+    // causing the next request (/user/me) to get a 401 because the session
+    // doesn't exist in Redis yet.
+    req.session.save((err) => {
+      if (err) {
+        return next(err);
+      }
+      res.redirect(`${process.env.FRONTEND_URL}/user`);
+    });
   } catch (err) {
     next(err)
   }
