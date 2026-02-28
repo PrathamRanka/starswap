@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { RepoSubmissionCard } from "@/components/RepoSubmissionCard";
 import Image from "next/image";
+import { FeedItem } from "@/types/api";
 
 import { userApi } from "@/services/user";
 
@@ -51,7 +52,12 @@ export default function UserProfilePage() {
           if (starswapRes.success) {
             // Build a quick lookup dictionary by full_name (githubId)
             const lookup: Record<string, { id: string; pitch: string | null }> = {};
-            starswapRes.data.forEach((r) => {
+            
+            // The backend returns { repos: [], nextCursor: string }
+            const apiData = starswapRes.data as unknown as { repos: FeedItem[] };
+            const publishedArr = Array.isArray(starswapRes.data) ? starswapRes.data : apiData.repos || [];
+
+            publishedArr.forEach((r: FeedItem) => {
                // The DB stores full_name as githubId, or we use name heuristics
                lookup[r.fullName || r.githubId || r.name] = { id: r.id, pitch: r.pitch };
             });
