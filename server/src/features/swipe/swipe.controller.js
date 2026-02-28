@@ -15,6 +15,13 @@ export const handleSwipe = async (req, res, next) => {
 
     res.json({ success: true, data: result })
   } catch (err) {
+    if (err.message && (err.message.includes('Already swiped') || err.message.includes('P2002'))) {
+      // Gracefully sink duplicate race-condition requests
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Swipe already registered (Ghost duplicate suppressed)' 
+      });
+    }
     next(err)
   }
 }

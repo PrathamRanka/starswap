@@ -160,15 +160,32 @@ const repoService = {
 
   async generateFeed(userId, cursorId, limit = 10) {
     const cacheKey = `feed:cache:${userId}:${cursorId || 'start'}`;
-    const cachedFeed = await redis.get(cacheKey);
-    let repos;
+    
+    let repos = null;
+    let cachedFeed = null;
+    
+    try {
+      cachedFeed = await redis.get(cacheKey);
+    } catch (redisErr) {
+      console.warn(`[Redis Fallback] Failed to GET cache for ${cacheKey}`, redisErr.message);
+    }
 
     if (cachedFeed) {
-      repos = JSON.parse(cachedFeed);
-    } else {
+      try {
+        repos = JSON.parse(cachedFeed);
+      } catch (e) {
+        console.warn(`[Redis Fallback] Failed to parse cached payload`, e.message);
+      }
+    } 
+    
+    if (!repos) {
       repos = await repoRepository.getFeed(userId, limit, null, cursorId);
       if (repos && repos.length > 0) {
-        await redis.set(cacheKey, JSON.stringify(repos), { EX: 60 });
+        try {
+          await redis.set(cacheKey, JSON.stringify(repos), { EX: 60 });
+        } catch (redisErr) {
+          console.warn(`[Redis Fallback] Failed to SET cache for ${cacheKey}`, redisErr.message);
+        }
       } else {
         repos = [];
       }

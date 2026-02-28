@@ -101,7 +101,7 @@ export default function LeaderboardPage() {
 
                      {/* Repo Info */}
                      <div className="md:col-span-6 flex items-center gap-3 md:gap-4 flex-1 min-w-0">
-                     {repo.owner?.avatarUrl ? (
+                     {repo.owner?.avatarUrl && repo.owner.avatarUrl !== '' ? (
                         <div className="relative">
                           {repo.rank === 1 && <div className="absolute -top-3 -left-2 text-2xl rotate-[-15deg]">👑</div>}
                           <Image src={repo.owner.avatarUrl} alt="Avatar" width={48} height={48} className={`w-12 h-12 rounded-xl object-cover border-2 shadow-lg ${repo.rank === 1 ? 'border-yellow-400' : repo.rank === 2 ? 'border-gray-300' : repo.rank === 3 ? 'border-amber-700' : 'border-white/10'}`} />
