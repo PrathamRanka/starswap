@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'https://backend.railway.app'}/api/:path*`, // Proxy to Backend
+        destination: 'https://starswap-production.up.railway.app/api/v1/:path*',
       },
     ];
   },

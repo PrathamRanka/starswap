@@ -2,7 +2,7 @@ import axios from 'axios';
 import { ApiResult } from '../types/api';
 
 const apiClient = axios.create({
-  baseURL: typeof window === 'undefined' ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1') : '/api/v1',
+  baseURL: '/api',
   withCredentials: true, // Crucial for Express session cookie (connect.sid)
   headers: {
     'Content-Type': 'application/json',

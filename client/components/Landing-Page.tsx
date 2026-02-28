@@ -420,7 +420,7 @@ function MiniNavbar() {
   ];
 
   const loginButtonElement = (
-    <a href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/auth/github`} className="px-4 py-2 sm:px-3 text-xs sm:text-sm font-semibold text-black bg-gradient-to-br from-gray-100 to-gray-300 rounded-full hover:from-gray-200 hover:to-gray-400 transition-all duration-200 w-full sm:w-auto text-center inline-block">
+    <a href="/api/auth/github" className="px-4 py-2 sm:px-3 text-xs sm:text-sm font-semibold text-black bg-gradient-to-br from-gray-100 to-gray-300 rounded-full hover:from-gray-200 hover:to-gray-400 transition-all duration-200 w-full sm:w-auto text-center inline-block">
       Login with GitHub
     </a>
   );
@@ -483,7 +483,7 @@ function MiniNavbar() {
 
 export const SignInPage = ({ className }: SignInPageProps) => {
   const handleGithubSignIn = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/auth/github`;
+    window.location.href = "/api/auth/github";
   };
 
   return (
