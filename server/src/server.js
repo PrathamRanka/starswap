@@ -7,6 +7,8 @@ import logger from './utils/logger.js';
 
 
 const PORT = process.env.PORT || 5000;
+console.log("Redis_URL exists:", !!process.env.REDIS_URL);
+console.log("Redis_URL value:", process.env.REDIS_URL);
 console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
 console.log("DATABASE_URL value:", process.env.DATABASE_URL);
 console.log("NODE_ENV:", process.env.NODE_ENV);

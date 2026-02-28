@@ -110,7 +110,9 @@ model SwipeAction {
   userId String
   repoId String
   type   SwipeType
-  weight Float     @default(1)
+  weight     Float     @default(1)
+  ipAddress  String?
+  userAgent  String?
 
   createdAt DateTime @default(now())
 
