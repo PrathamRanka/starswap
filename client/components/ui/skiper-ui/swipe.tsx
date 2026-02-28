@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import Image from "next/image";
-import { X, Star } from "lucide-react";
+import { X, Star, ExternalLink } from "lucide-react";
 import {
   motion,
   useMotionValue,
@@ -132,7 +132,20 @@ function SwipeCard({
           )}
 
           <div className="space-y-1">
-            <h2 className="text-2xl font-bold tracking-tight text-white">{repo.name}</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center justify-center gap-2">
+              {repo.name}
+              {repo.url && (
+                <a
+                  href={repo.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/40 hover:text-white transition-colors"
+                  onClick={(e) => e.stopPropagation()} // Prevent drag triggering
+                >
+                  <ExternalLink size={18} />
+                </a>
+              )}
+            </h2>
             <p className="text-white/50 text-sm font-medium">by @{repo.owner?.username}</p>
           </div>
 

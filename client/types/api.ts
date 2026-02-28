@@ -39,6 +39,7 @@ export interface FeedItem {
   description?: string | null;
   languages?: string[];
   githubStars: number;
+  url?: string;
   forks?: number;
   visibilityScore?: number;
   engagementScore?: number;
