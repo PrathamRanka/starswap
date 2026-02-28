@@ -536,13 +536,45 @@ export const SignInPage = ({ className }: SignInPageProps) => {
                     transition={{ duration: 0.4, ease: "easeOut" }}
                     className="space-y-6 text-center"
                   >
-                    <div className="space-y-1">
-                      <h1 className="text-[2.5rem] font-bold leading-[1.1] tracking-tight text-white mb-6 flex flex-wrap justify-center items-center">
-                        <span>Discover</span>
-                        <span className={cn(ephesis.className, "text-[4rem] font-medium leading-[0.8] ml-2 text-transparent bg-clip-text bg-linear-to-r from-white to-white/60 whitespace-nowrap pt-2")}>Top Repos</span>
-                      </h1>
-                      <p className={cn(robotoSlab.className, "text-[1.1rem] text-white/70 font-light max-w-sm mx-auto tracking-wide leading-relaxed")}>Swipe to discover, rank, and pitch the most elite open source repositories in the ecosystem.</p>
-                    </div>
+
+
+<div className="text-center space-y-10 -mt-12 md:-mt-8">
+
+  {/* Brand Name - Biggest */}
+  <h1
+    className={cn(
+      "text-[4rem] md:text-[6rem] font-extrabold tracking-tight leading-none pb-2 w-fit mx-auto pr-2 md:pr-4",
+      "text-transparent bg-clip-text bg-linear-to-r from-white via-white/90 to-white/60"
+    )}
+  >
+    StarSwap
+  </h1>
+
+  {/* Secondary Heading */}
+  <h2 className="text-[2.2rem] md:text-[2.8rem] font-bold tracking-tight text-white leading-[1.1]">
+    Discover <br />
+    <span
+      className={cn(
+        ephesis.className,
+        "text-[3.5rem] md:text-[5rem] font-medium leading-[0.9] block mt-4",
+        "text-transparent bg-clip-text bg-linear-to-r from-white to-white/60"
+      )}
+    >
+      Top Repos
+    </span>
+  </h2>
+
+  {/* Subheading */}
+  <p
+    className={cn(
+      robotoSlab.className,
+      "text-base md:text-[1.2rem] text-white/70 font-light max-w-none mx-auto leading-relaxed whitespace-nowrap"
+    )}
+  >
+    Swipe Right on Your Next Side Project Obsession
+  </p>
+
+</div>
                     
                     
                     <div className="space-y-4 pt-8">

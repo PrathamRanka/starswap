@@ -90,12 +90,12 @@ export default function UserProfilePage() {
         <div className="flex flex-wrap md:flex-nowrap gap-4 text-center w-full md:w-auto mt-4 md:mt-0">
            <div className="bg-black/50 px-6 py-4 rounded-2xl border border-white/5">
               <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-1">Rank Score</p>
-              <p className="text-2xl font-mono font-bold">{user.leaderboardScore}</p>
+              <p className="text-2xl font-mono font-bold">{user.leaderboardScore.toFixed(2)}</p>
            </div>
-           <div className="bg-black/50 px-6 py-4 rounded-2xl border border-white/5">
+           {/* <div className="bg-black/50 px-6 py-4 rounded-2xl border border-white/5">
               <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-1">Daily Streak</p>
               <p className="text-2xl font-mono font-bold flex items-center justify-center gap-2">🔥 {user.streakCount}</p>
-           </div>
+           </div> */}
         </div>
       </section>
 
