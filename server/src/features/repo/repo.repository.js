@@ -24,6 +24,13 @@ const repoRepository = {
     });
   },
 
+  async updateRepoPitchByGithubId(githubId, newPitch) {
+    return prisma.repo.update({
+      where: { githubId },
+      data: { description: newPitch }
+    });
+  },
+
   async getFeed(userId, limit, cursorScore, cursorId) {
     // To achieve scalable feed generation without extensive left joins,
     // we use a cursor-based approach ordered by visibilityScore DESC, id DESC.

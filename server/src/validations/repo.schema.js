@@ -7,3 +7,8 @@ export const submitRepoSchema = z.object({
   githubRepoId: z.string().regex(githubRepoRegex, 'Invalid format. Must be owner/repo (e.g. facebook/react)'),
   pitch: z.string().max(180, 'Pitch must be under 180 characters').optional()
 });
+
+export const updatePitchSchema = z.object({
+  githubRepoId: z.string().regex(githubRepoRegex, 'Invalid format. Must be owner/repo (e.g. facebook/react)'),
+  pitch: z.string().max(180, 'Pitch must be under 180 characters').optional()
+});

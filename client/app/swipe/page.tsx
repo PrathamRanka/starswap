@@ -27,10 +27,7 @@ export default function SwipePage() {
     try {
       const result = await repositoryApi.getFeed(currentCursor || undefined, 10);
       if (result.success) {
-        setFeed(prev => {
-           const newItems = result.data.filter(item => !prev.some(p => p.id === item.id));
-           return [...prev, ...newItems];
-        });
+        setFeed(result.data);
         setCursor(result.meta?.nextCursor || null);
       }
     } catch (err) {

@@ -98,6 +98,32 @@ const repoService = {
     }
   },
 
+  async updatePitch(userId, githubRepoId, pitch) {
+    const existing = await repoRepository.findRepoByGithubId(githubRepoId);
+    if (!existing) {
+      throw new CustomError('Repository not found', 404);
+    }
+
+    // Strictly enforce that only the true GitHub owner of the project can edit its pitch
+    if (existing.ownerId !== userId) {
+      throw new CustomError('Only the owner of this repository can edit its pitch.', 403);
+    }
+
+    const updatedRepo = await repoRepository.updateRepoPitchByGithubId(githubRepoId, pitch || '');
+
+    // Flush feed caches so the new pitch propagates
+    try {
+      const keys = await redis.keys('feed:cache:*');
+      if (keys.length > 0) {
+        await redis.del(keys);
+      }
+    } catch (e) {
+      console.error('Failed to clear feed cache:', e);
+    }
+
+    return updatedRepo;
+  },
+
   async syncRepository(repoId) {
     const repo = await repoRepository.findRepoById(repoId);
     if (!repo) {

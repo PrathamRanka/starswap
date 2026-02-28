@@ -198,6 +198,7 @@ const swipeService = {
               headers: {
                 'Authorization': `Bearer ${rawToken}`,
                 'Accept': 'application/vnd.github.v3+json',
+                'User-Agent': 'StarSwap-App',
                 'Content-Length': '0'
               }
             });

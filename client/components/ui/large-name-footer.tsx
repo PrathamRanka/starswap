@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Github, Twitter, Linkedin } from "lucide-react";
+import { Github } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -48,19 +48,6 @@ function Footer() {
                 View on GitHub
               </Button>
             </Link>
-
-            <div className="flex items-center gap-2">
-              <Link href="#" target="_blank" aria-label="Twitter">
-                <Button variant="outline" size="icon" className="rounded-full bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white">
-                  <Twitter className="w-4 h-4" />
-                </Button>
-              </Link>
-               <Link href="#" target="_blank" aria-label="LinkedIn">
-                <Button variant="outline" size="icon" className="rounded-full bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white">
-                  <Linkedin className="w-4 h-4" />
-                </Button>
-              </Link>
-            </div>
           </div>
 
           {/* Copyright section */}

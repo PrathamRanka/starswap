@@ -16,6 +16,7 @@ export function RepoSubmissionCard({ githubRepoId, name, description, language, 
   const [pitch, setPitch] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [success, setSuccess] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleSubmit = async () => {
     // Exact contract validation: Max 180 chars. 
@@ -34,17 +35,17 @@ export function RepoSubmissionCard({ githubRepoId, name, description, language, 
     setIsSubmitting(true);
     setErrorMsg("");
 
-    const result = await repositoryApi.submitRepo({
-      githubRepoId,
-      pitch
-    });
+    const result = isEditing 
+        ? await repositoryApi.updatePitch({ githubRepoId, pitch })
+        : await repositoryApi.submitRepo({ githubRepoId, pitch });
 
     setIsSubmitting(false);
 
     if (!result.success) {
       const code = result.error?.code;
-      if (code === "ALREADY_SUBMITTED" || code === "CONFLICT") {
-        setErrorMsg("You have already submitted this repository.");
+      if (code === "ALREADY_SUBMITTED" || code === "CONFLICT" || result.error?.message?.includes("already submitted")) {
+        setErrorMsg("This repository is already submitted. You are now editing its pitch.");
+        setIsEditing(true);
       } else {
         setErrorMsg(result.error?.message || "Failed to submit repository.");
       }
@@ -107,8 +108,10 @@ export function RepoSubmissionCard({ githubRepoId, name, description, language, 
           {isSubmitting ? (
              <div className="flex items-center justify-center gap-2">
                 <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
-                Publishing...
+                {isEditing ? "Updating..." : "Publishing..."}
              </div>
+          ) : isEditing ? (
+             "Update Pitch"
           ) : (
              "Send to Public"
           )}

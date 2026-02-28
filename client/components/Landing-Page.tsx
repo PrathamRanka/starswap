@@ -4,6 +4,8 @@ import React, { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Ephesis, Roboto_Slab } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 
 import * as THREE from "three";
@@ -482,6 +484,15 @@ function MiniNavbar() {
 }
 
 export const SignInPage = ({ className }: SignInPageProps) => {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.push("/swipe");
+    }
+  }, [user, isLoading, router]);
+
   const handleGithubSignIn = () => {
     window.location.href = "/api/auth/github";
   };

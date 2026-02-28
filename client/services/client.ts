@@ -52,4 +52,13 @@ export async function post<T>(url: string, data = {}, config = {}): Promise<ApiR
   }
 }
 
+export async function patch<T>(url: string, data = {}, config = {}): Promise<ApiResult<T>> {
+  try {
+    const response = await apiClient.patch<ApiResult<T>>(url, data, config);
+    return response as unknown as ApiResult<T>;
+  } catch (error) {
+    return error as ApiResult<T>;
+  }
+}
+
 export default apiClient;
