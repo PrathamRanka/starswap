@@ -10,14 +10,24 @@ interface RepoSubmissionCardProps {
   description: string;
   language: string;
   stars: number;
+  isPublished?: boolean;
+  initialPitch?: string;
 }
 
-export function RepoSubmissionCard({ githubRepoId, name, description, language, stars }: RepoSubmissionCardProps) {
+export function RepoSubmissionCard({ 
+  githubRepoId, 
+  name, 
+  description, 
+  language, 
+  stars,
+  isPublished = false,
+  initialPitch = ""
+}: RepoSubmissionCardProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [pitch, setPitch] = useState("");
+  const [pitch, setPitch] = useState(initialPitch);
   const [errorMsg, setErrorMsg] = useState("");
   const [success, setSuccess] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(isPublished);
 
   const handleSubmit = async () => {
     // Exact contract validation: Max 180 chars. 
@@ -67,8 +77,16 @@ export function RepoSubmissionCard({ githubRepoId, name, description, language, 
   }
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors flex flex-col justify-between group">
-      <div>
+    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors flex flex-col justify-between group relative">
+      
+      {/* Top Published Badge */}
+      {isPublished && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-500 text-black text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-[0_0_10px_rgba(34,197,94,0.5)] flex items-center gap-1">
+          <span>✓</span> Published on StarSwap
+        </div>
+      )}
+
+      <div className={isPublished ? "mt-3" : ""}>
         <div className="flex items-center gap-2 mb-1">
            <h3 className="font-bold text-lg truncate" title={name}>{name}</h3>
            <a href={`https://github.com/${githubRepoId}`} target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-white transition-colors" title="View Source on GitHub">
@@ -101,6 +119,12 @@ export function RepoSubmissionCard({ githubRepoId, name, description, language, 
             {pitch.length}/180
           </div>
         </div>
+
+        {isPublished && (
+          <p className="text-[10px] text-white/40 italic leading-tight text-center px-2">
+            Updating your pitch will delete all previous swipe views and re-deploy this repository back to the global Feed.
+          </p>
+        )}
 
         {errorMsg && (
           <p className="text-red-400 text-xs text-center">{errorMsg}</p>

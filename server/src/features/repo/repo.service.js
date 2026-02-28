@@ -112,6 +112,14 @@ const repoService = {
 
     const updatedRepo = await repoRepository.updateRepoPitchByGithubId(githubRepoId, pitch || '');
 
+    // Reset Feed visibility: Delete all historical SwipeActions for this repository
+    // so it re-appears in the Feed Generator queue for all users.
+    try {
+      await repoRepository.deleteAllSwipesByRepoId(existing.id);
+    } catch (e) {
+      console.error('Failed to purge historical swipes during pitch update:', e);
+    }
+
     // Flush feed caches so the new pitch propagates
     try {
       const keys = await redis.keys('feed:cache:*');

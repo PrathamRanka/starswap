@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import { RepoSubmissionCard } from "@/components/RepoSubmissionCard";
 import Image from "next/image";
 
+import { userApi } from "@/services/user";
+
 interface GithubRepo {
   id: number;
   name: string;
@@ -20,6 +22,7 @@ interface GithubRepo {
 export default function UserProfilePage() {
   const { user } = useAuth();
   const [repos, setRepos] = useState<GithubRepo[]>([]);
+  const [publishedRepos, setPublishedRepos] = useState<Record<string, { id: string; pitch: string | null }>>({});
   const [loadingRepos, setLoadingRepos] = useState(false);
   const [repoError, setRepoError] = useState("");
 
@@ -28,18 +31,32 @@ export default function UserProfilePage() {
     if (!user?.username) return;
 
     let mounted = true;
-    const fetchGithubRepos = async () => {
+    const fetchData = async () => {
       setLoadingRepos(true);
       try {
-        // Fetch direct from GitHub API
-        const response = await fetch(`https://api.github.com/users/${user.username}/repos?sort=updated&per_page=100`);
-        if (!response.ok) throw new Error("Failed to fetch public repositories.");
+        // Fetch both GitHub repos and StarSwap published repos concurrently
+        const [githubRes, starswapRes] = await Promise.all([
+           fetch(`https://api.github.com/users/${user.username}/repos?sort=updated&per_page=100`),
+           userApi.getMyRepos()
+        ]);
         
-        const data: GithubRepo[] = await response.json();
+        if (!githubRes.ok) throw new Error("Failed to fetch public repositories.");
+        
+        const githubData: GithubRepo[] = await githubRes.json();
         
         if (mounted) {
           // Filter out forks so they only submit original work
-          setRepos(data.filter(repo => !repo.fork));
+          setRepos(githubData.filter(repo => !repo.fork));
+          
+          if (starswapRes.success) {
+            // Build a quick lookup dictionary by full_name (githubId)
+            const lookup: Record<string, { id: string; pitch: string | null }> = {};
+            starswapRes.data.forEach((r) => {
+               // The DB stores full_name as githubId, or we use name heuristics
+               lookup[r.fullName || r.githubId || r.name] = { id: r.id, pitch: r.pitch };
+            });
+            setPublishedRepos(lookup);
+          }
         }
       } catch (err: unknown) {
         const error = err as Error;
@@ -49,7 +66,7 @@ export default function UserProfilePage() {
       }
     };
 
-    fetchGithubRepos();
+    fetchData();
 
     return () => { mounted = false; };
   }, [user]);
@@ -128,16 +145,22 @@ export default function UserProfilePage() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
-          {repos.map(repo => (
-            <RepoSubmissionCard 
-              key={repo.id}
-              githubRepoId={repo.full_name}
-              name={repo.name}
-              description={repo.description}
-              language={repo.language}
-              stars={repo.stargazers_count}
-            />
-          ))}
+          {repos.map(repo => {
+             const publishedData = publishedRepos[repo.full_name];
+             
+             return (
+              <RepoSubmissionCard 
+                key={repo.id}
+                githubRepoId={repo.full_name}
+                name={repo.name}
+                description={repo.description}
+                language={repo.language}
+                stars={repo.stargazers_count}
+                isPublished={!!publishedData}
+                initialPitch={publishedData?.pitch || ""}
+              />
+             );
+          })}
         </div>
       </section>
     </div>

@@ -33,6 +33,7 @@ export interface User {
 
 export interface FeedItem {
   id: string;
+  githubId?: string;
   name: string;
   fullName?: string;
   pitch: string | null;

@@ -31,6 +31,12 @@ const repoRepository = {
     });
   },
 
+  async deleteAllSwipesByRepoId(repoId) {
+    return prisma.swipeAction.deleteMany({
+      where: { repoId }
+    });
+  },
+
   async getFeed(userId, limit, cursorScore, cursorId) {
     // To achieve scalable feed generation without extensive left joins,
     // we use a cursor-based approach ordered by visibilityScore DESC, id DESC.
