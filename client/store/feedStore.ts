@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { FeedItem } from '../types/api';
-import { repositoryApi } from '../api/repository';
+import { repositoryApi } from '../services/repository';
 
 interface FeedState {
   feed: FeedItem[];
