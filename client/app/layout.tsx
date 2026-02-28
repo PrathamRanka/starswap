@@ -18,6 +18,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "StarSwap",
   description: "Swap your stars",
+  icons: {
+    icon: "/icon.ico",
+  },
 };
 
 export default function RootLayout({
