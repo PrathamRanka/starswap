@@ -414,8 +414,8 @@ function MiniNavbar() {
   );
 
   const navLinksData = [
-    { label: 'Repos', href: '#1' },
-    { label: 'Leaderboard', href: '#2' },
+    { label: 'Swipe', href: 'swipe' },
+    { label: 'Leaderboard', href: 'leaderboard' },
     // { label: 'Discover', href: '#3' },
   ];
 
