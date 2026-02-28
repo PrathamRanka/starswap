@@ -43,7 +43,7 @@ function Footer() {
           {/* Actions & Socials inline */}
           <div className="flex flex-wrap items-center gap-4 justify-start md:justify-end">
             <Link href="https://github.com/PrathamRanka/starswap" target="_blank" className="w-fit">
-              <Button variant="outline" className="text-white bg-transparent hover:bg-white/10 border-white/20 gap-2 rounded-full px-6 py-5 font-semibold transition-all">
+              <Button variant="outline" className="text-white bg-transparent border-white/20 gap-2 rounded-full px-6 py-5 font-semibold transition-all">
                 <Github className="w-4 h-4" />
                 View on GitHub
               </Button>
@@ -63,7 +63,7 @@ function Footer() {
 
       {/* Massive Background Watermark Text */}
       <div className="absolute bottom-[-10%] left-0 w-full flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden">
-        <h1 className="text-[18vw] font-extrabold tracking-tight leading-none blur-[2px] opacity-10 bg-linear-to-b from-white to-transparent bg-clip-text text-transparent">
+        <h1 className="text-[18vw] font-extrabold tracking-tight leading-none  opacity-10 bg-linear-to-b from-white to-white/40 bg-clip-text text-transparent">
           STARSWAP
         </h1>
       </div>
