@@ -55,10 +55,22 @@ export default function SwipePage() {
     showToast(`⭐ Starred ${repo.name} on GitHub!`);
   };
 
-  if (!user || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen w-full bg-black flex items-center justify-center">
         <div className="w-8 h-8 border-t-2 border-white/50 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen w-full bg-black flex flex-col items-center justify-center text-white">
+        <h2 className="text-2xl font-bold mb-4">You need to sign in</h2>
+        <p className="text-white/50 mb-8">Sign in with GitHub to start swiping.</p>
+        <a href="/api/auth/github" className="px-6 py-3 bg-white text-black font-semibold rounded-full hover:bg-white/90 transition-all">
+          Sign In with GitHub
+        </a>
       </div>
     );
   }
