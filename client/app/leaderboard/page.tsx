@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 
 export default function LeaderboardPage() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [repos, setRepos] = useState<TopRepo[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,8 +27,10 @@ export default function LeaderboardPage() {
 
     if (user) {
       fetchLeaderboard();
+    } else if (!authLoading) {
+      setLoading(false);
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   if (loading) {
     return (

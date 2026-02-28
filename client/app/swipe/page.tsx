@@ -9,7 +9,7 @@ import { Carousel_002 } from "@/components/ui/skiper-ui/swipe";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function SwipePage() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [feed, setFeed] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -43,8 +43,10 @@ export default function SwipePage() {
   useEffect(() => {
     if (user) {
       fetchFeed();
+    } else if (!authLoading) {
+      setLoading(false);
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   const handleSwipeLeft = (repo: FeedItem) => {
     swipeApi.submitSwipe(repo.id, 'SKIP');
