@@ -132,7 +132,8 @@ const swipeService = {
       const repo = await tx.repo.update({
         where: { id: repoId },
         data: {
-          engagementScore: { increment: trustWeight }
+          engagementScore: { increment: trustWeight },
+          githubStars: type === 'STAR' ? { increment: 1 } : undefined
         }
       })
 
