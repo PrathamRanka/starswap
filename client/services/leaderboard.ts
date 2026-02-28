@@ -19,6 +19,7 @@ export interface TopRepo {
   githubStars: number;
   pitch: string | null;
   language: string | null;
+  url: string;
   rank: number;
   owner?: {
     username: string;

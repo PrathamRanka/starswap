@@ -3,6 +3,7 @@ import authRepository from '../auth/auth.repository.js';
 import githubClient from '../../utils/githubClient.js';
 import redis from '../../config/redis.js';
 import prisma from '../../config/prisma.js';
+import swipeService from '../swipe/swipe.service.js';
 
 class CustomError extends Error {
   constructor(message, statusCode) {
@@ -159,6 +160,9 @@ const repoService = {
   },
 
   async generateFeed(userId, cursorId, limit = 10) {
+    // Fire-and-forget background worker to purge un-starred repos from the local database
+    swipeService.syncStaleSwipes(userId).catch(e => console.error('[Background Sync Error]', e.message));
+
     const cacheKey = `feed:cache:${userId}:${cursorId || 'start'}`;
     
     let repos = null;

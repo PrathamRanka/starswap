@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { leaderboardApi, TopRepo } from "@/services/leaderboard";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { ExternalLink } from "lucide-react";
 
 export default function LeaderboardPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -111,8 +112,13 @@ export default function LeaderboardPage() {
                           {repo.owner?.username?.charAt(0).toUpperCase() || '?'}
                         </div>
                       )}
-                      <div className="flex flex-col">
-                        <h3 className="font-semibold text-white/90 truncate max-w-[200px] md:max-w-xs">{repo.name}</h3>
+                      <div className="flex flex-col flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-white/90 truncate max-w-[150px] md:max-w-xs">{repo.name}</h3>
+                          <a href={repo.url} target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-white transition-colors" title="View Source on GitHub">
+                            <ExternalLink size={14} />
+                          </a>
+                        </div>
                         <span className="text-xs text-blue-400 hover:underline cursor-pointer">@{repo.owner?.username}</span>
                       </div>
                     </div>

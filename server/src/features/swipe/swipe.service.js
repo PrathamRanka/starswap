@@ -217,6 +217,63 @@ const swipeService = {
     }
 
     return result
+  },
+
+  async syncStaleSwipes(userId) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { accounts: true }
+      });
+      
+      const token = user?.accounts?.[0]?.accessToken;
+      if (!token) return;
+
+      const rawToken = decrypt(token);
+      if (!rawToken) return;
+
+      // Sample 3 random 'STAR' swipes to check per feed generation
+      const recentSwipes = await prisma.swipeAction.findMany({
+        where: { userId, type: 'STAR' },
+        take: 3,
+        orderBy: { id: 'desc' },
+        include: { repo: true }
+      });
+
+      for (const swipe of recentSwipes) {
+        if (!swipe.repo?.fullName) continue;
+
+        try {
+          const res = await fetch(`https://api.github.com/user/starred/${swipe.repo.fullName}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${rawToken}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'User-Agent': 'StarSwap-App'
+            }
+          });
+
+          // GitHub returns 404 if the repo is NOT starred by the user
+          if (res.status === 404) {
+            console.log(`[Reverse Sync] Repo ${swipe.repo.fullName} was unstarred on GitHub. Deleting local swipe...`);
+            await prisma.swipeAction.delete({
+              where: { id: swipe.id }
+            });
+            // Decrement the repo score slightly to reflect the un-star
+            await prisma.repo.update({
+              where: { id: swipe.repoId },
+              data: {
+                githubStars: { decrement: 1 }
+              }
+            });
+          }
+        } catch (apiErr) {
+          console.error(`[Reverse Sync] Failed API ping for ${swipe.repo.fullName}`, apiErr.message);
+        }
+      }
+    } catch (err) {
+      console.error('[Reverse Sync] Critical worker error:', err.message);
+    }
   }
 }
 

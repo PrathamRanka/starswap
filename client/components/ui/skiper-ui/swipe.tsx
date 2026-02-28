@@ -103,14 +103,14 @@ function SwipeCard({
         {/* STAR badge */}
         <motion.div
           style={{ opacity: starOpacity }}
-          className="absolute top-5 right-5 z-20 border-[3px] border-green-400 text-green-400 font-black tracking-widest uppercase py-1 px-3 text-xl rounded-xl rotate-12"
+          className="absolute top-5 right-5 z-20 border-[3px] border-green-400 text-green-400 font-black tracking-widest uppercase py-1 px-3 text-xl rounded-xl rotate-12 bg-black/50 backdrop-blur-sm"
         >
-          ⭐ STAR
+          STAR
         </motion.div>
         {/* SKIP badge */}
         <motion.div
           style={{ opacity: skipOpacity }}
-          className="absolute top-5 left-5 z-20 border-[3px] border-red-400 text-red-400 font-black tracking-widest uppercase py-1 px-3 text-xl rounded-xl -rotate-12"
+          className="absolute top-5 left-5 z-20 border-[3px] border-red-400 text-red-400 font-black tracking-widest uppercase py-1 px-3 text-xl rounded-xl -rotate-12 bg-black/50 backdrop-blur-sm"
         >
           SKIP
         </motion.div>
@@ -220,8 +220,7 @@ export const Carousel_002 = ({
             animate={{ opacity: 1, scale: 1 }}
             className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 border border-dashed border-white/10 rounded-3xl bg-white/5"
           >
-              <span className="text-4xl mb-4">🚀</span>
-              <h3 className="text-xl font-bold text-white mb-2">You&apos;re caught up!</h3>
+              <h3 className="text-xl font-bold text-white mb-2 mt-4">You&apos;re caught up!</h3>
               <p className="text-white/50 text-sm">You have seen all available repositories. Check back later for more.</p>
           </motion.div>
         )}

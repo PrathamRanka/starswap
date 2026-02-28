@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { repositoryApi } from "@/services/repository";
+import { ExternalLink } from "lucide-react";
 
 interface RepoSubmissionCardProps {
   githubRepoId: string; // The full_name e.g. "facebook/react"
@@ -68,12 +69,17 @@ export function RepoSubmissionCard({ githubRepoId, name, description, language, 
   return (
     <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors flex flex-col justify-between group">
       <div>
-        <h3 className="font-bold text-lg mb-1 truncate" title={name}>{name}</h3>
+        <div className="flex items-center gap-2 mb-1">
+           <h3 className="font-bold text-lg truncate" title={name}>{name}</h3>
+           <a href={`https://github.com/${githubRepoId}`} target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-white transition-colors" title="View Source on GitHub">
+              <ExternalLink size={16} />
+           </a>
+        </div>
         <p className="text-sm text-white/60 mb-2 line-clamp-2 min-h-[40px] italic">&quot;{description || "No description provided."}&quot;</p>
         
         <div className="items-center gap-4 text-xs text-white/40 mb-6 font-mono bg-black/30 p-2 rounded-lg inline-flex w-fit border border-white/5">
           <span>{language || "Unknown"}</span>
-          <span className="flex items-center gap-1">⭐ {stars}</span>
+          <span className="flex items-center gap-1">Stars: {stars}</span>
         </div>
       </div>
 

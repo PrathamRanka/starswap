@@ -51,7 +51,7 @@ export default function SwipePage() {
 
   const handleSwipeRight = (repo: FeedItem) => {
     swipeApi.submitSwipe(repo.id, 'STAR');
-    showToast(`⭐ Starred ${repo.name} on GitHub!`);
+    showToast(`Starred ${repo.name} on GitHub!`);
   };
 
   if (loading) {
