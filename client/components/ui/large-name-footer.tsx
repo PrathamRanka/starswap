@@ -26,7 +26,7 @@ function Footer() {
             </h2>
           </Link>
           <p className="text-sm text-muted-foreground font-medium">
-            Built by <Link href="https://github.com/PrathamRanka/starswap" target="_blank" className="text-white/60 hover:text-white transition-colors">@Pratham</Link>
+            Built by <Link href="https://github.com/PrathamRanka" target="_blank" className="text-white/60 hover:text-white transition-colors">@Pratham</Link>
           </p>
         </div>
 
