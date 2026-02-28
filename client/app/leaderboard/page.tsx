@@ -39,7 +39,7 @@ export default function LeaderboardPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-black/95 text-white flex flex-col items-center py-12 px-4 md:px-8 relative overflow-hidden">
+    <div className="min-h-screen w-full bg-black/95 text-white flex flex-col items-center pt-28 pb-12 px-4 md:px-8 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-[500px] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-blue-900/40 via-black to-black opacity-60 z-0"></div>
 
       <div className="z-10 w-full max-w-4xl flex flex-col items-center">
