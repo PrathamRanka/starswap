@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { repositoryApi } from "@/api/repository";
+import { repositoryApi } from "@/services/repository";
 
 interface RepoSubmissionCardProps {
   githubRepoId: string; // The full_name e.g. "facebook/react"

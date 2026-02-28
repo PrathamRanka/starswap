@@ -2,8 +2,8 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
-import { repositoryApi } from "@/api/repository";
-import { swipeApi } from "@/api/swipe";
+import { repositoryApi } from "@/services/repository";
+import { swipeApi } from "@/services/swipe";
 import { FeedItem } from "@/types/api";
 import { Carousel_002 } from "@/components/ui/skiper-ui/swipe";
 import { motion, AnimatePresence } from "framer-motion";

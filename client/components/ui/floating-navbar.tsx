@@ -7,7 +7,7 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 //import { useAuth } from "@/hooks/useAuth";
-import { authApi } from "@/api/auth";
+import { authApi } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 

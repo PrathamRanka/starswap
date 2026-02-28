@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
-import { leaderboardApi, TopRepo } from "@/api/leaderboard";
+import { leaderboardApi, TopRepo } from "@/services/leaderboard";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
