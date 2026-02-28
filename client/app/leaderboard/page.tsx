@@ -89,18 +89,18 @@ export default function LeaderboardPage() {
                    animate={{ opacity: 1, y: 0 }}
                    transition={{ delay: idx * 0.05 }}
                    key={repo.id}
-                   className="grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-5 border-b border-white/5 last:border-0 items-center hover:bg-white/5 transition-colors group relative"
+                   className="flex flex-col md:grid md:grid-cols-12 gap-4 px-4 md:px-6 py-5 border-b border-white/5 last:border-0 md:items-center hover:bg-white/5 transition-colors group relative"
                  >
-                   
-                   {/* Rank */}
-                   <div className="col-span-1 flex justify-center text-center">
-                     <span className={`text-xl font-bold font-mono ${repo.rank <= 3 ? 'text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]' : 'text-white/30'}`}>
-                       #{repo.rank}
-                     </span>
-                   </div>
+                   <div className="flex items-center gap-3 md:contents">
+                     {/* Rank */}
+                     <div className="md:col-span-1 flex justify-center text-center w-8 md:w-auto shrink-0">
+                       <span className={`text-xl font-bold font-mono ${repo.rank <= 3 ? 'text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]' : 'text-white/30'}`}>
+                         #{repo.rank}
+                       </span>
+                     </div>
 
-                   {/* Repo Info */}
-                   <div className="col-span-6 flex items-center gap-4">
+                     {/* Repo Info */}
+                     <div className="md:col-span-6 flex items-center gap-3 md:gap-4 flex-1 min-w-0">
                      {repo.owner?.avatarUrl ? (
                         <div className="relative">
                           {repo.rank === 1 && <div className="absolute -top-3 -left-2 text-2xl rotate-[-15deg]">👑</div>}
@@ -110,15 +110,16 @@ export default function LeaderboardPage() {
                         <div className={`w-12 h-12 rounded-xl bg-white/10 border-2 flex items-center justify-center font-bold font-mono ${repo.rank === 1 ? 'border-yellow-400 text-yellow-400' : repo.rank === 2 ? 'border-gray-300 text-gray-300' : repo.rank === 3 ? 'border-amber-700 text-amber-700' : 'border-white/10 text-white/50'}`}>
                           {repo.owner?.username?.charAt(0).toUpperCase() || '?'}
                         </div>
-                     )}
-                     <div className="flex flex-col">
-                       <h3 className="font-semibold text-white/90 truncate max-w-[200px] md:max-w-xs">{repo.name}</h3>
-                       <span className="text-xs text-blue-400 hover:underline cursor-pointer">@{repo.owner?.username}</span>
-                     </div>
-                   </div>
+                      )}
+                      <div className="flex flex-col">
+                        <h3 className="font-semibold text-white/90 truncate max-w-[200px] md:max-w-xs">{repo.name}</h3>
+                        <span className="text-xs text-blue-400 hover:underline cursor-pointer">@{repo.owner?.username}</span>
+                      </div>
+                    </div>
+                  </div>
 
-                   {/* Mobile Language & Stars */}
-                   <div className="md:hidden flex items-center gap-4 mt-2 pl-12">
+                  {/* Mobile Language & Stars */}
+                  <div className="md:hidden flex items-center gap-4 mt-1 pl-11">
                      <div className="flex items-center gap-1.5 text-xs text-white/50">
                         <span className="w-2 h-2 rounded-full bg-yellow-400 opacity-80"></span>
                         {repo.language || 'Unknown'}

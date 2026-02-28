@@ -87,7 +87,7 @@ export default function UserProfilePage() {
           </div>
         </div>
 
-        <div className="flex gap-4 text-center">
+        <div className="flex flex-wrap md:flex-nowrap gap-4 text-center w-full md:w-auto mt-4 md:mt-0">
            <div className="bg-black/50 px-6 py-4 rounded-2xl border border-white/5">
               <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-1">Rank Score</p>
               <p className="text-2xl font-mono font-bold">{user.leaderboardScore}</p>
