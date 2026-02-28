@@ -10,12 +10,30 @@ StarSwap is a production-grade social discovery engine designed exclusively for 
 
 StarSwap handles highly concurrent state mutations (user swipes) while maintaining precision guarantees regarding database race conditions and exact ranking calculations. It leverages an event-driven architecture that verifies GitHub OAuth access tokens securely without retaining vulnerable secrets on the client natively. 
 
-### Core Stack
-* **Frontend Component:** Next.js (App Router), React, Tailwind CSS, Framer Motion
-* **API Gateway / Backend:** Node.js, Express.js
-* **Relational Database:** PostgreSQL managed via Prisma ORM
-* **In-Memory Cache / Queues:** Redis
-* **Analytics:** Vercel Analytics
+## Tech Stack
+
+**Frontend:**
+
+* **Next.js (App Router):** Modern React framework for routing and server-side rendering.
+* **React:** UI library for building component-based interfaces.
+* **Tailwind CSS:** Utility-first styling for rapid UI development.
+* **Framer Motion:** Declarative animations library used for the fluid swipe deck.
+* **Lucide React:** Icon library.
+* **Axios:** Unified API client for data fetching.
+
+**Backend & API Gateway:**
+
+* **Node.js & Express.js:** Fast, robust web framework handling concurrent API requests.
+* **Prisma ORM:** Fully type-safe Node.js ORM used for PostgreSQL interaction.
+* **Redis:** Used for token bucket rate limiting, session storage, and zset leaderboards.
+* **Express Session & Helmet:** Managing secure HTTP-only cookies and edge security headers.
+
+**Infrastructure & Database:**
+
+* **PostgreSQL:** Primary relational database for transaction integrity and data persistence.
+* **GitHub OAuth REST API v3:** Native authentication provider.
+* **Vercel:** Edge network deployment and traffic routing.
+* **Vercel Analytics:** Performance and user traffic monitoring.
 
 ---
 
@@ -182,7 +200,13 @@ Users have complete autonomy over how their project is portrayed to the communit
 ### 4. Advanced Security & Protections
 * **Token Bucket Algorithm:** Custom Redis-based rate limiters enforce maximum velocity constraints (e.g., maximum 30 swipes per minute per IP).
 * **Cross-Origin Resource Sharing (CORS):** Strictly validated against explicit production environments. 
-* **Database Deadlock Prevention:** Prisma uses custom `try/catch` interceptors anticipating `P2002` constraint failures during concurrent swipe anomalies.
+
+### 5. Optimizations & Concurrency Handling
+
+* **Cursor-Based Pagination (Global Feed):** To achieve scalable feed generation without extensive left joins, the `getFeed` endpoint relies on Prisma's cursor pagination (`cursor`, `take`, `skip`). It optimally orders un-swiped repositories by `visibilityScore DESC` and `id DESC`. Filtering out swiped repositories uses Prisma's relational filters (`swipes: { none: { userId } }`), avoiding expensive NOT EXISTS database table scans.
+* **Offset Pagination (User Endpoints):** Standard offset pagination (`limit` and `skip: offset`) is deployed for user-specific endpoints (like `getUserRepositories`) where nested relational exclusion isn't required, allowing for flexible navigation and data scaling.
+* **Idempotency & P2002 Race Condition Handling:** The system handles highly concurrent swipe payloads effectively using atomic Postgres transactions (`prisma.$transaction`). High-velocity concurrent duplicate swipe events (Double-Taps or network delays) will inevitably trigger Prisma's unique constraint violations (`P2002` error code). The backend gracefully catches and suppresses these specific `P2002` errors internally without crashing the server, treating them as harmless idempotent operations.
+* **Prisma Performance & Architecture:** Employs advanced DB techniques including atomic increments/multipliers (e.g., `trustScore: { multiply: 0.9 }`) to avoid read-modify-write race conditions. A secondary Redis layer tracks swipe velocity, rejecting requests at the gateway before they even hit the Postgres transaction layer. A cron-triggered `syncStaleSwipes` hook periodically validates data consistency.
 
 ---
 
