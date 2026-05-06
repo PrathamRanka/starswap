@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import Image from "next/image";
-import { X, Star, ExternalLink } from "lucide-react";
 import {
   motion,
   useMotionValue,
@@ -103,14 +102,14 @@ function SwipeCard({
         {/* STAR badge */}
         <motion.div
           style={{ opacity: starOpacity }}
-          className="absolute top-5 right-5 z-20 border-[3px] border-green-400 text-green-400 font-black tracking-widest uppercase py-1 px-3 text-xl rounded-xl rotate-12 bg-black/50 backdrop-blur-sm"
+          className="absolute top-5 right-5 z-20 border-[3px] border-green-400 text-green-400 font-black tracking-widest uppercase py-1 px-3 text-xl rounded-xl rotate-12"
         >
-          STAR
+          ⭐ STAR
         </motion.div>
         {/* SKIP badge */}
         <motion.div
           style={{ opacity: skipOpacity }}
-          className="absolute top-5 left-5 z-20 border-[3px] border-red-400 text-red-400 font-black tracking-widest uppercase py-1 px-3 text-xl rounded-xl -rotate-12 bg-black/50 backdrop-blur-sm"
+          className="absolute top-5 left-5 z-20 border-[3px] border-red-400 text-red-400 font-black tracking-widest uppercase py-1 px-3 text-xl rounded-xl -rotate-12"
         >
           SKIP
         </motion.div>
@@ -132,20 +131,7 @@ function SwipeCard({
           )}
 
           <div className="space-y-1">
-            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center justify-center gap-2">
-              {repo.name}
-              {repo.url && (
-                <a
-                  href={repo.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white/40 hover:text-white transition-colors"
-                  onClick={(e) => e.stopPropagation()} // Prevent drag triggering
-                >
-                  <ExternalLink size={18} />
-                </a>
-              )}
-            </h2>
+            <h2 className="text-2xl font-bold tracking-tight text-white">{repo.name}</h2>
             <p className="text-white/50 text-sm font-medium">by @{repo.owner?.username}</p>
           </div>
 
@@ -187,18 +173,16 @@ export const Carousel_002 = ({
 }) => {
   const [cards, setCards] = useState<FeedItem[]>(feed);
   const isSwiping = useRef(false);
-  const [isSwipingState, setIsSwipingState] = useState(false);
 
   // Sync when the parent feed changes (new pages loaded)
   useEffect(() => {
     setCards(feed);
   }, [feed]);
 
-    const dismiss = useCallback(
+  const dismiss = useCallback(
     async (repo: FeedItem, direction: "left" | "right") => {
       if (isSwiping.current) return;
       isSwiping.current = true;
-      setIsSwipingState(true);
 
       // Notify parent immediately so toast fires right away
       if (direction === "right") {
@@ -218,50 +202,13 @@ export const Carousel_002 = ({
       // 1.2s cooldown before the user can swipe again
       await new Promise((r) => setTimeout(r, SWIPE_COOLDOWN - EXIT_DURATION * 1000 - 50));
       isSwiping.current = false;
-      setIsSwipingState(false);
     },
     [onSwipeLeft, onSwipeRight, onReachEnd]
   );
 
   return (
-    <div className="relative flex items-center justify-center">
-      <div className="relative w-[320px] h-[480px]">
-        {/* Empty State shown when internal cards array is empty but we are still in Carousel */}
-        {cards.length === 0 && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 border border-dashed border-white/10 rounded-3xl bg-white/5"
-          >
-              <h3 className="text-xl font-bold text-white mb-2 mt-4">You&apos;re caught up!</h3>
-              <p className="text-white/50 text-sm">You have seen all available repositories. Check back later for more.</p>
-          </motion.div>
-        )}
-
-        {/* Desktop Navigation Arrows */}
-        {cards.length > 0 && (
-           <>
-             {/* Left Skip Button */}
-             <button 
-                onClick={() => dismiss(cards[cards.length - 1], "left")}
-                disabled={isSwipingState}
-                className="hidden md:flex absolute top-1/2 -left-24 -translate-y-1/2 w-16 h-16 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 rounded-full items-center justify-center transition-all hover:scale-110 active:scale-95 disabled:opacity-50 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] z-50 cursor-pointer"
-             >
-                <X size={32} strokeWidth={3} />
-             </button>
-
-             {/* Right Star Button */}
-             <button 
-                onClick={() => dismiss(cards[cards.length - 1], "right")}
-                disabled={isSwipingState}
-                className="hidden md:flex absolute top-1/2 -right-24 -translate-y-1/2 w-16 h-16 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 text-green-500 rounded-full items-center justify-center transition-all hover:scale-110 active:scale-95 disabled:opacity-50 hover:shadow-[0_0_20px_rgba(34,197,94,0.3)] z-50 cursor-pointer"
-             >
-                <Star size={28} strokeWidth={3} />
-             </button>
-           </>
-        )}
-
-        <AnimatePresence>
+    <div className="relative w-[320px] h-[480px]">
+      <AnimatePresence>
         {cards
           .slice()
           .reverse()
@@ -297,8 +244,7 @@ export const Carousel_002 = ({
               </motion.div>
             );
           })}
-        </AnimatePresence>
-      </div>
+      </AnimatePresence>
     </div>
   );
 };

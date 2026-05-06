@@ -8,52 +8,45 @@ datasource db {
 }
 
 model User {
-  id        String  @id @default(uuid())
-  githubId  String  @unique
-  username  String
-  name      String?
-  email     String?
-  avatarUrl String?
+  id               String          @id @default(uuid())
+  githubId         String          @unique
+  username         String
+  name             String?
+  email            String?
+  avatarUrl        String?
+  starsGiven       Int             @default(0)
+  starsReceived    Int             @default(0)
+  streakCount      Int             @default(0)
+  lastActiveDate   DateTime?
+  leaderboardScore Float           @default(0)
+  isBlocked        Boolean         @default(false)
+  role             Role            @default(USER)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  lastSwipeAt      DateTime?
+  trustScore       Float           @default(1.0)
+  abuseLogs        AbuseLog[]
+  accounts         Account[]
+  activityStreak   ActivityStreak?
+  reposOwned       Repo[]          @relation("OwnerRepos")
+  sessions         Session[]
+  swipes           SwipeAction[]
 
-  starsGiven    Int @default(0)
-  starsReceived Int @default(0)
-
-  streakCount    Int       @default(0)
-  lastActiveDate DateTime?
-
-  leaderboardScore Float @default(0)
-
-  isBlocked Boolean @default(false)
-  role      Role    @default(USER)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  accounts       Account[]
-  sessions       Session[]
-  reposOwned     Repo[]          @relation("OwnerRepos")
-  swipes         SwipeAction[]
-  abuseLogs      AbuseLog[]
-  activityStreak ActivityStreak?
-  trustScore Float @default(1.0)
- lastSwipeAt DateTime?
   @@index([leaderboardScore])
   @@index([githubId])
 }
 
 model Account {
-  id                String  @id @default(uuid())
+  id                String   @id @default(uuid())
   userId            String
   provider          String
   providerAccountId String
   accessToken       String
   refreshToken      String?
   expiresAt         Int?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
@@ -64,39 +57,31 @@ model Session {
   userId       String
   sessionToken String   @unique
   expires      DateTime
-
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
 model Repo {
-  id       String @id @default(uuid())
-  githubId String @unique
-  ownerId  String
-
-  name        String
-  fullName    String
-  description String?
-  url         String
-  language    String?
-
-  githubStars Int @default(0)
-  forks       Int @default(0)
-  watchers    Int @default(0)
-
-  engagementScore Float @default(0)
-  visibilityScore Float @default(0)
-
-  isActive Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  owner  User          @relation("OwnerRepos", fields: [ownerId], references: [id])
-  swipes SwipeAction[]
+  id              String        @id @default(uuid())
+  githubId        String        @unique
+  ownerId         String
+  name            String
+  fullName        String
+  description     String?
+  url             String
+  language        String?
+  githubStars     Int           @default(0)
+  forks           Int           @default(0)
+  watchers        Int           @default(0)
+  engagementScore Float         @default(0)
+  visibilityScore Float         @default(0)
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  owner           User          @relation("OwnerRepos", fields: [ownerId], references: [id])
+  swipes          SwipeAction[]
 
   @@index([ownerId])
   @@index([engagementScore])
@@ -106,20 +91,18 @@ model Repo {
 }
 
 model SwipeAction {
-  id     String    @id @default(uuid())
-  userId String
-  repoId String
-  type   SwipeType
-  weight     Float     @default(1)
-  ipAddress  String?
-  userAgent  String?
-
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  repo Repo @relation(fields: [repoId], references: [id], onDelete: Cascade)
-  trustScore Float @default(1.0)
+  id          String    @id @default(uuid())
+  userId      String
+  repoId      String
+  type        SwipeType
+  weight      Float     @default(1)
+  createdAt   DateTime  @default(now())
   lastSwipeAt DateTime?
+  trustScore  Float     @default(1.0)
+  ipAddress   String?
+  userAgent   String?
+  repo        Repo      @relation(fields: [repoId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, repoId])
   @@index([repoId])
@@ -132,19 +115,16 @@ model ActivityStreak {
   current    Int       @default(0)
   longest    Int       @default(0)
   lastActive DateTime?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AbuseLog {
-  id       String @id @default(uuid())
-  userId   String
-  reason   String
-  severity Float  @default(1)
-
+  id        String   @id @default(uuid())
+  userId    String
+  reason    String
+  severity  Float    @default(1)
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }

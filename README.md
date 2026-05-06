@@ -1,4 +1,4 @@
-# StarSwap
++# StarSwap
 
 StarSwap is a production-grade social discovery engine designed exclusively for open-source developers. Modeled after modern swiping interfaces, StarSwap allows users to rapidly discover, rate, and pitch GitHub repositories to a worldwide audience. It couples a highly optimized Next.js frontend with a deeply secure Express.js gateway, governed by Redis-backed rate limiters and real-time PostgreSQL synchronization.
 
