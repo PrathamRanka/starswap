@@ -45,6 +45,8 @@ const authService = {
       await authRepository.ensureStreakExists(tx, user.id)
 
       return user
+    }, {
+      timeout: 15000 // Increase timeout to 15 seconds for network latency
     })
 
     return result
